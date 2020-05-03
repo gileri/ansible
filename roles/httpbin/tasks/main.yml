@@ -1,0 +1,38 @@
+---
+- name: Install docker python library
+  pacman:
+    name: python-docker
+- name: Start docker
+  systemd:
+    name: docker.service
+    state: started
+- name: Pull httpbin
+  docker_image:
+    name: "{{ docker_image_tag }}"
+    source: pull
+- name: Inspect docker image
+  docker_image_info:
+    name: "{{ docker_image_tag }}"
+  register: docker_image_facts
+- name: Check docker image hash
+  assert: { that: "docker_image_facts.images[0].Id == docker_image_hash" }
+- name: Copy systemd service
+  template:
+    src: templates/httpbin.service
+    dest: /etc/systemd/system/httpbin.service
+  notify:
+    - Reload systemd units
+
+- meta: flush_handlers
+
+- name: Enable and start systemd service
+  systemd:
+    name: httpbin.service
+    state: started
+    enabled: yes
+
+- name: Enable and start systemd service
+  systemd:
+    name: httpbin.service
+    state: started
+    enabled: yes

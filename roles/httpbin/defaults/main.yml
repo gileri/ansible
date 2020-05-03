@@ -1,0 +1,6 @@
+---
+docker_image_tag: kennethreitz/httpbin
+docker_image_hash: sha256:b138b9264903f46a43e1c750e07dc06f5d2a1bd5d51f37fb185bc608f61090dd
+docker_container_name: httpbin
+docker_container_host_host: 127.0.0.1
+docker_container_host_port: 8001

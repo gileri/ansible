@@ -1,0 +1,16 @@
+[Unit]
+Description=httpbin docker container
+BindsTo=docker.service
+After=docker.service
+[Service]
+Restart=on-failure
+RestartSec=10
+ExecStartPre=-/usr/bin/docker rm --force {{ docker_container_name }}
+ExecStart=/usr/bin/docker run --rm --name {{ docker_container_name }} \
+    -p {{docker_container_host_host}}:{{ docker_container_host_port }}:8000 \
+    -u 9999 \
+    {{ docker_image_tag }} \
+    gunicorn -b 0.0.0.0:8000 httpbin:app -k gevent
+ExecStop=/usr/bin/docker stop {{ docker_container_name }}
+[Install]
+WantedBy=multi-user.target
