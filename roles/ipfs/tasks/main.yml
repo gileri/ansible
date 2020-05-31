@@ -1,0 +1,32 @@
+---
+- name: Create a dedicated user
+  user:
+    name: "{{ user_name }}"
+    create_home: yes
+
+- name: Extract ipfs binary
+  unarchive:
+    src: https://dist.ipfs.io/go-ipfs/{{ ipfs_version }}/go-ipfs_{{ ipfs_version }}_linux-amd64.tar.gz
+    dest: /usr/local/bin
+    extra_opts:
+      - "--strip=1"
+      - go-ipfs/ipfs
+    mode: 0755
+    remote_src: yes
+
+- name: Initializing ipfs configuration
+  shell: ipfs init
+  become: yes
+  become_user: "{{ user_name}}"
+
+- name: Create systemd service
+  template:
+    src: ipfs@.service
+    dest: /etc/systemd/system/ipfs@.service
+
+- name: start myservice
+  systemd:
+    state: started
+    enabled: yes
+    name: ipfs@{{ user_name }}
+    daemon_reload: yes
