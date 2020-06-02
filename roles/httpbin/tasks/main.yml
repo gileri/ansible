@@ -1,11 +1,4 @@
 ---
-- name: Install docker python library
-  pacman:
-    name: python-docker
-- name: Start docker
-  systemd:
-    name: docker.service
-    state: started
 - name: Pull httpbin
   docker_image:
     name: "{{ docker_image_tag }}"

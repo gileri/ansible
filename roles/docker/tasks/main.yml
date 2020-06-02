@@ -1,0 +1,11 @@
+---
+- name: Install docker and its python library
+  pacman:
+    name: 
+      - docker
+      - python-docker
+- name: Enable and start docker
+  systemd:
+    name: docker.service
+    state: started
+    enabled: yes
