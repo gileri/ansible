@@ -7,8 +7,10 @@
   docker_image_info:
     name: "{{ docker_image_tag }}"
   register: docker_image_facts
+
 - name: Check docker image hash
   assert: { that: "docker_image_facts.images[0].Id == docker_image_hash" }
+
 - name: Copy systemd service
   template:
     src: templates/httpbin.service
