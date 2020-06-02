@@ -3,7 +3,7 @@ Description=InterPlanetary File System (IPFS) daemon
 
 [Service]
 User=%i
-ExecStart=/usr/local/bin/ipfs daemon
+ExecStart=/usr/local/bin/ipfs daemon --init --migrate
 Restart=on-failure
 
 [Install]

@@ -14,17 +14,12 @@
     mode: 0755
     remote_src: yes
 
-- name: Initializing ipfs configuration
-  shell: ipfs init
-  become: yes
-  become_user: "{{ user_name}}"
-
 - name: Create systemd service
   template:
     src: ipfs@.service
     dest: /etc/systemd/system/ipfs@.service
 
-- name: start myservice
+- name: Start and enable ipfs systemd service
   systemd:
     state: started
     enabled: yes
