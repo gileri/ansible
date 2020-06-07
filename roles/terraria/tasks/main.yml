@@ -1,0 +1,53 @@
+---
+- name: Create terraria user
+  user:
+    name: terraria
+
+- name: Check installed version
+  shell: "pacman -Q gog-terraria | cut -d\\  -f2 "
+  changed_when: False
+  register: installed_package_info
+
+- name: Install game
+  when: installed_package_info.rc != 0 or installed_package_info.stdout != terraria_package_version
+  block:
+    - name: Copy Terraria package
+      copy:
+        src: "{{ package_path }}"
+        dest: "/tmp"
+    - name: Copy Terraria config
+      template:
+        src: templates/serverconfig.txt
+        dest: "~terraria/.local/share/Terraria/serverconfig.txt"
+      notify: restart terraria
+    - name: Install Terraria
+      pacman:
+        name: "/tmp/{{ package_path | basename }}"
+      notify: restart terraria
+
+- name: Add terraria service
+  template:
+    src: templates/terraria.service
+    dest: /etc/systemd/system/terraria.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - daemon reload
+    - restart terraria
+
+- name: Enable and start terraria service
+  systemd:
+    name: terraria
+    state: started
+    enabled: yes
+
+- name: Remove terraria package
+  file:
+    path: "/tmp/{{ package_path | basename }}"
+    state: absent
+
+- name: Allow terraria in firewall
+  ufw:
+    rule: allow
+    to_port: "7777"

@@ -1,0 +1,26 @@
+#Load a world and automatically start the server.
+world={{ home_path }}/.local/share/Terraria/Worlds/{{ world_name }}.wld
+
+#Sets the max number of players allowed on a server.  Value must be between 1 and 255
+maxplayers={{ maxplayers }}
+
+#Set the port number
+port=7777
+
+#Set the server password
+password={{ password }}
+
+#Set the message of the day
+#motd=Plentyspoil
+
+#Adds addition cheat protection.
+#secure=1
+
+#Sets the server language from its language code. 
+#English = en-US, German = de-DE, Italian = it-IT, French = fr-FR, Spanish = es-ES, Russian = ru-RU, Chinese = zh-Hans, Portuguese = pt-BR, Polish = pl-PL,
+#language=en-US
+
+upnp=0
+
+#Default system priority 0:Realtime, 1:High, 2:AboveNormal, 3:Normal, 4:BelowNormal, 5:Idle
+#priority=3

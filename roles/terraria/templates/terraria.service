@@ -1,0 +1,11 @@
+[Unit]
+Description=Start tmux in detached session
+
+[Service]
+Type=forking
+User=terraria
+ExecStart=/usr/bin/tmux new-session -s terraria -d /opt/gog-terraria/game/TerrariaServer.bin.x86_64 -config {{ home_path }}/.local/share/Terraria/serverconfig.txt -pass {{ password }}
+ExecStop=/usr/bin/tmux kill-session -t terraria
+
+[Install]
+WantedBy=multi-user.target
