@@ -25,9 +25,3 @@
     name: httpbin.service
     state: started
     enabled: yes
-
-- name: Enable and start systemd service
-  systemd:
-    name: httpbin.service
-    state: started
-    enabled: yes
