@@ -4,20 +4,11 @@
     name: "{{ user_name }}"
     create_home: yes
 
-- name: Extract ipfs binary
-  unarchive:
-    src: https://dist.ipfs.io/go-ipfs/{{ ipfs_version }}/go-ipfs_{{ ipfs_version }}_linux-amd64.tar.gz
-    dest: /usr/local/bin
-    extra_opts:
-      - "--strip=1"
-      - go-ipfs/ipfs
-    mode: 0755
-    remote_src: yes
-
-- name: Create systemd service
-  template:
-    src: ipfs@.service
-    dest: /etc/systemd/system/ipfs@.service
+- name: Install IPFS
+  pacman:
+    name: go-ipfs
+  when: ansible_facts["os_family"] == "Archlinux"
+  notify: Restart ipfs systemd service
 
 - name: Start and enable ipfs systemd service
   systemd:

@@ -1,0 +1,4 @@
+- name: Restart ipfs systemd service
+  systemd:
+    state: restarted
+    name: ipfs@{{ user_name }}
