@@ -1,0 +1,10 @@
+---
+- name: Reload sshd
+  systemd:
+    name: sshd.service
+    state: reloaded
+
+- name: Restart netdata
+  systemd:
+    name: netdata.service
+    state: restarted

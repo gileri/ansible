@@ -1,0 +1,119 @@
+---
+- name: Generate locale
+  locale_gen:
+    name: fr_FR.UTF-8
+
+- name: Set default locale
+  lineinfile:
+    line: LANG=fr_FR.UTF-8
+    path: /etc/locale.conf
+
+- name: Upgrade packages
+  pacman:
+    update_cache: yes
+    upgrade: yes
+
+- name: Install packages
+  pacman:
+    name:
+      - base-devel
+      - git
+      - neovim
+      - openssh
+      - reflector
+      - lm_sensors
+      - zsh-completions
+      - btrfs-progs
+      - htop
+      - netdata
+      - tmux
+      - mosh
+      - ufw
+      - tcpdump
+      - strace
+      - ranger
+      - rsync
+      - ncdu
+      - smartmontools
+      - gnu-netcat
+      - mediainfo
+      - lsof
+      - gptfdisk
+      - man
+
+- name: Create aur_builder user
+  user:
+    name: aur_builder
+
+- name: Check whether there is a mirrorlist.pacnew
+  stat:
+    path: /etc/pacmand.d/mirrorlist.pacnew
+  register: mirrorlist_pacnew
+
+- name: Update mirrorlist
+  copy:
+    remote_src: yes
+    src: /etc/pacman.d/mirrorlist.pacnew
+    dest: /etc/pacman.d/mirrorlist
+  when: mirrorlist_pacnew.stat.exists
+
+- name: Rank mirrors
+  shell:
+    command: reflector --country France --latest 200 --age 2 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+  when: mirrorlist_pacnew.stat.exists
+  # TODO Re-rank periodically based on mtime
+
+- name: Enable and start sshd socket # Duh
+  systemd:
+    name: sshd.service
+    state: started
+    enabled: yes
+
+- name: Enable and start netdata
+  systemd:
+    name: netdata.service
+    state: started
+    enabled: yes
+
+- name: Disable SSH passphrase-based login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: PasswordAuthentication no
+    regexp: '^#?PasswordAuthentication.*(yes|no)'
+  notify: Reload sshd
+
+- name: Allow SSH in firewall
+  ufw:
+    rule: allow
+    to_port: ssh
+    proto: tcp
+
+- name: Configure and enable ufw
+  ufw:
+    default: deny
+    state: enabled
+    logging: off
+
+- name: Enable ufw at boot
+  systemd:
+    name: ufw
+    enabled: yes
+
+- name: Make netdata listen on wildcard
+  lineinfile:
+    path: /etc/netdata/netdata.conf
+    insertafter: "\\[web\\]"
+    regexp: "^[^#]*bind to"
+    line: "bind to = *:19999=dashboard"
+  notify: Restart netdata
+
+- name: Allow local access to netdata in firewall
+  ufw:
+    from: "{{ item }}"
+    rule: allow
+    to_port: "19999"
+    proto: tcp
+  loop:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16

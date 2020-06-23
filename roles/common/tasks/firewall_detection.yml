@@ -1,0 +1,11 @@
+---
+- name: Getting service status
+  service_facts:
+
+- name: Set ufw as current firewall
+  set_fact:
+    firewall: ufw
+  when:
+    - firewall is not defined
+    - ansible_facts.services['ufw.service'] is defined
+    - ansible_facts.services['ufw.service'].status == "enabled"
