@@ -1,4 +1,9 @@
 ---
+- name: Detect which firewall is enabled
+  include_role:
+    name: common
+    tasks_from: firewall_detection
+
 - name: Create a dedicated user
   user:
     name: "{{ user_name }}"
@@ -16,3 +21,31 @@
     enabled: yes
     name: ipfs@{{ user_name }}
     daemon_reload: yes
+
+- name: Allow public access to swarm port in ufw
+  ufw:
+    rule: allow
+    to_port: "4001"
+  when: firewall is defined and firewall == "ufw"
+
+- name: Allow API access from RFC1918 networks
+  ufw:
+    rule: allow
+    src: '{{ item }}'
+    to_port: "5001"
+  loop:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+  when: firewall is defined and firewall == "ufw"
+
+- name: Allow gateway access from RFC1918 networks
+  ufw:
+    rule: allow
+    src: '{{ item }}'
+    to_port: "8080"
+  loop:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+  when: firewall is defined and firewall == "ufw"

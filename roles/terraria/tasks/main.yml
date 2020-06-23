@@ -47,7 +47,13 @@
     path: "/tmp/{{ package_path | basename }}"
     state: absent
 
+- name: Detect which firewall is enabled
+  include_role:
+    name: common
+    tasks_from: firewall_detection
+
 - name: Allow terraria in firewall
   ufw:
     rule: allow
     to_port: "7777"
+  when: firewall is defined and firewall == "ufw"
