@@ -1,3 +1,4 @@
 *.retry
+inventory.yml
 local_vars.yml
 .vagrant
