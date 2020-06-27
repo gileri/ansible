@@ -1,0 +1,66 @@
+- hosts: ub4
+  pre_tasks:
+    - name: Include local_vars
+      include_vars:
+        file: local_vars.yml
+    - name: Ensure rtorrent directory exists
+      file:
+        state: directory
+        path: /mnt/data/dl/
+        owner: torrent
+        group: torrent
+    - name: Bind-mount rtorrent var directory
+      file:
+        state: link
+        src: /mnt/data/dl
+        path: "{{ rtorrent_var_dir }}"
+  roles:
+    - role: common
+      tags: [ common ]
+    - docker
+    - role: torrent
+      vars:
+        torrent_home: /mnt/data/home/torrent
+        domain_name: "rutorrent.{{ top_domain_name }}"
+        https_certificate_path: "/etc/ssl_certificates/rutorrent.{{ top_domain_name }}/fullchain.pem"
+        https_key_path: "/etc/ssl_certificates/rutorrent.{{ top_domain_name }}/privatekey.pem"
+      tags: [ torrent ]
+    - role: web
+      tags: [ web ]
+    - ipfs
+    - nas
+    - role: borg_backup_target
+      tags: [ borg_backup_target ]
+    - role: tor
+      tags: [ tor ]
+    - role: https
+      vars:
+        https_domains:
+          - "rutorrent.{{ top_domain_name }}"
+      tags: https
+    - role: terraria
+      vars:
+        package_path: "{{ terraria_package_path }}"
+        password: "{{ terraria_password }}"
+        maxplayers: 8
+  tasks:
+    - name: Add authorized_keys to root
+      authorized_key:
+        key: "{{ item }}"
+        user: root
+      with_file:
+        - authorized_keys/gileri_ryz
+        - authorized_keys/gileri_tpy
+
+    - name: Install stress tui
+      pacman:
+        name: s-tui
+
+    - name: Add pierre user
+      user:
+        name: pierre
+
+    - name: Add authorized_keys to pierre
+      authorized_key:
+        key: "{{ lookup('file', 'authorized_keys/pierre') }}"
+        user: pierre
