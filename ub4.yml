@@ -28,6 +28,12 @@
     - role: web
       tags: [ web ]
     - ipfs
+    - name: rsshub
+      vars:
+        domain_name: "rsshub.{{ top_domain_name }}"
+        https_certificate_path: "/etc/ssl_certificates/rsshub.{{ top_domain_name }}/fullchain.pem"
+        https_key_path: "/etc/ssl_certificates/rsshub.{{ top_domain_name }}/privatekey.pem"
+      tags: rsshub
     - nas
     - role: borg_backup_target
       tags: [ borg_backup_target ]
@@ -37,6 +43,7 @@
       vars:
         https_domains:
           - "rutorrent.{{ top_domain_name }}"
+          - "rsshub.{{ top_domain_name }}"
       tags: https
     - role: terraria
       vars:
