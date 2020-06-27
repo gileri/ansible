@@ -59,6 +59,9 @@
     - name: Add pierre user
       user:
         name: pierre
+        groups:
+          - pierre
+          - torrent
 
     - name: Add authorized_keys to pierre
       authorized_key:
