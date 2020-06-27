@@ -1,0 +1,46 @@
+---
+- name: Detect which firewall is enabled
+  include_role:
+    name: common
+    tasks_from: firewall_detection
+
+- name: Load handlers
+  include_role:
+    name: common
+    handlers_from: "{{ item }}"
+  loop:
+    - systemd
+
+- name: Install packages
+  pacman:
+    name:
+      - tor
+      - nyx
+
+- name: Overwrite torrc configuration
+  template:
+    src: templates/torrc
+    dest: /etc/tor/torrc
+  notify: Reload Tor service
+
+- name: Override tor systemd service
+  template:
+    src: templates/tor.service
+    dest: /etc/systemd/system/tor.service
+  notify: Reload systemd services
+
+- name: Allow public tor ports
+  ufw:
+    rule: allow
+    proto: tcp
+    to_port: "{{ item }}"
+  when: firewall is defined and firewall == "ufw"
+  loop:
+    - "{{ tor_dir_port }}"
+    - "{{ tor_or_port }}"
+
+- name: Start and enable Tor
+  systemd:
+    name: tor.service
+    state: started
+    enabled: yes

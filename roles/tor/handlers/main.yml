@@ -1,0 +1,5 @@
+---
+- name: Reload Tor service
+  systemd:
+    name: tor.service
+    state: reloaded

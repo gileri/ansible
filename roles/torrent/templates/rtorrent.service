@@ -1,0 +1,32 @@
+[Unit]
+Description=rTorrent daemon
+After=network.target
+
+[Service]
+Type=simple
+User={{ torrent_user }}
+ExecStart=/usr/bin/rtorrent -n -o import={{ rtorrent_config_dir}}/{{ rtorrent_config_file }}
+Restart=on-failure
+KillSignal=SIGINT
+
+Nice=19
+IOSchedulingClass=idle
+IOSchedulingPriority=7
+
+PrivateDevices=true
+PrivateTmp=true
+ProtectHome=true
+ProtectKernelModules=true
+ProtectSystem=full
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictNamespaces=true
+
+# https://github.com/php/php-src/blob/578a8113ebade39e68489c974cd6c16b2aecbf2e/sapi/fpm/php-fpm.service.in
+# Restricts the set of socket address families accessible to the processes of this unit.
+# Protects against vulnerabilities such as CVE-2016-8655
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

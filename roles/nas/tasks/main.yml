@@ -1,0 +1,6 @@
+---
+- name: Install packages
+  pacman:
+    name:
+      - mdadm
+      - nfs-utils

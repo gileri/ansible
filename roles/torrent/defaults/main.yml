@@ -1,0 +1,11 @@
+---
+rtorrent_bittorrent_port: 50000
+rtorrent_dht_port: 6881
+rtorrent_config_dir: /etc/rtorrent
+rtorrent_config_file: rtorrent.rc
+rtorrent_var_dir: /var/lib/rtorrent
+torrent_user: torrent
+torrent_group: torrent
+torrent_home: /home/torrent
+torrent_shell: /bin/zsh
+torrent_top_directory: "{{ rtorrent_var_dir}}/download"

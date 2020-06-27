@@ -1,0 +1,157 @@
+---
+- name: Detect which firewall is enabled
+  include_role:
+    name: common
+    tasks_from: firewall_detection
+
+- name: Allow Bittorrent traffic in firewall
+  ufw:
+    rule: allow
+    proto: tcp
+    to_port: "{{ rtorrent_bittorrent_port }}"
+  when: firewall is defined and firewall == "ufw"
+
+- name: Allow DHT traffic in firewall
+  ufw:
+    rule: allow
+    proto: udp
+    to_port: "{{ rtorrent_dht_port }}"
+  when: firewall is defined and firewall == "ufw"
+
+- name: Install rtorrent
+  package:
+    name: rtorrent
+
+- name: Create group
+  group:
+    name: "{{ torrent_group }}"
+
+- name: Create user
+  user:
+    name: "{{ torrent_user }}"
+    groups: "{{ torrent_group }}"
+    shell: "{{ torrent_shell }}"
+    home: "{{ torrent_home }}"
+  register: user_info
+
+- name: Allow traversal of torrent home directory to group
+  file:
+    path: "{{ rtorrent_var_dir }}"
+    mode: g+x
+
+- name: Create rtorrent config directory
+  file:
+    path: "{{ rtorrent_config_dir }}"
+    state: directory
+    owner: root
+    group: torrent
+
+- name: Copy rtorrent config
+  template:
+    src: templates/rtorrent.rc
+    dest: "{{ rtorrent_config_dir }}/rtorrent.rc"
+    owner: "{{ torrent_user }}"
+    group: "{{ torrent_group }}"
+  notify: Restart rtorrent
+
+- name: Copy systemd service
+  template:
+    src: templates/rtorrent.service
+    dest: /etc/systemd/system/rtorrent.service
+  notify:
+      - Reload systemd services
+      - Restart rtorrent
+
+- name: Start and enable systemd service
+  systemd:
+    name: rtorrent.service
+    state: started
+    enabled: yes
+
+# TODO logrotate
+
+- name: Check whether rutorrent is installed
+  shell:
+    cmd: pacman -Q rutorrent
+  changed_when: False
+  register: rutorrent_pacman_status
+  failed_when: rutorrent_pacman_status.rc != 0 and rutorrent_pacman_status.rc != 1
+
+- name: Install rutorrent dependencies
+  pacman:
+    name:
+      - php
+      - curl
+      - gzip
+      - coreutils
+
+- name: Build and install rutorrent
+  become: yes
+  become_user: aur_builder
+  when: rutorrent_pacman_status.rc != 0 or force_rutorrent_installation
+  block:
+    - name: Get rutorrent package
+      git:
+        repo: https://aur.archlinux.org/rutorrent.git
+        dest: /tmp/rutorrent
+    - name: Build rutorrent package
+      shell:
+        chdir: /tmp/rutorrent
+        cmd: makepkg --force --noconfirm --noprogressbar
+    - name: Find build package file
+      find:
+        paths: /tmp/rutorrent
+        patterns: rutorrent*.pkg.*
+      register: rutorrent_package_path
+      failed_when: rutorrent_package_path.matched == 0
+    - name: Install rutorrent
+      become: no
+      pacman:
+        name: "{{ rutorrent_package_path.files[0].path }}"
+    - name: Clean build folder
+      file:
+        path: /tmp/rutorrent
+        state: absent
+
+- name: Generate self-signed HTTPS certificate
+  import_role:
+    name: https
+    tasks_from: bootstrap.yml
+  vars:
+    domain: "{{ domain_name }}"
+
+- name: Add rutorrent nginx configuration
+  template:
+    src: templates/nginx_rutorrent.conf
+    dest: /etc/nginx/sites-enabled/rutorrent.conf
+  notify: Reload nginx
+
+- name: Add rutorrent basic authorization credentials
+  template:
+    src: templates/rutorrent.htpasswd
+    dest: /etc/nginx/snippets/
+  notify: Reload nginx
+
+
+- name: Replace rutorrent configuration
+  template:
+    src: templates/rutorrent_config.php
+    dest: /etc/webapps/rutorrent/conf/config.php
+
+- name: Create rutorrent var directories
+  file:
+    path: "/var/lib/rutorrent/{{ item }}"
+    state: directory
+    mode: 0770
+    owner: http
+    group: torrent
+  loop:
+    - torrents
+    - settings
+
+- name: Add web server user to torrent group
+  user:
+    name: http
+    append: yes
+    groups: torrent
+  notify: Restart nginx

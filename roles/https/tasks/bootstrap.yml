@@ -1,0 +1,37 @@
+---
+- name: Create required directories in /etc/letsencrypt
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,g=x,o=x
+  with_items:
+  - "{{ certificates_live_dir }}"
+  - "{{ certificates_live_dir }}/{{ domain }}"
+
+- name: Generate private keys
+  openssl_privatekey:
+    size: 4096
+    path: "{{ certificates_live_dir }}/{{ domain }}/privatekey.pem"
+
+- name: Generate CSRs
+  openssl_csr:
+    privatekey_path: "{{ certificates_live_dir }}/{{ domain }}/privatekey.pem"
+    path: "{{ certificates_live_dir }}/{{ domain }}/csr.pem"
+    digest: sha256
+    common_name: "{{ domain }}"
+
+- name: Check if there is already a certificate
+  stat:
+    path: "{{ certificates_live_dir }}/{{ domain }}/fullchain.pem"
+  register: certifiace_stat
+
+- name: Generate temporary self-signed certificates
+  openssl_certificate:
+    privatekey_path: "{{ certificates_live_dir }}/{{ domain }}/privatekey.pem"
+    csr_path: "{{ certificates_live_dir }}/{{ domain }}/csr.pem"
+    path: "{{ certificates_live_dir }}/{{ domain }}/fullchain.pem"
+    provider: selfsigned
+    force: no # Ensure that valid or previous certificates would not be overwritten
+  when: certificate_stat.exists is false

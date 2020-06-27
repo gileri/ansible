@@ -1,0 +1,63 @@
+---
+- name: Install PHP
+  pacman:
+    name:
+      - php
+      - php-fpm
+
+- name: Enable and start php-fpm
+  systemd:
+    name: php-fpm
+    state: started
+    enabled: yes
+
+- name: Install nginx
+  pacman:
+    name: nginx
+
+- name: Generate dhparams
+  openssl_dhparam:
+    path: /etc/nginx/dhparams.pem
+    size: 4096
+
+- name: Configure nginx conf
+  copy:
+    src: templates/nginx/conf.d
+    dest: /etc/nginx/
+  notify:
+    - reload nginx
+
+- name: Configure nginx main conf
+  copy:
+    src: templates/nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf
+  notify:
+    - reload nginx
+
+- name: Configure nginx snippets
+  copy:
+    src: templates/nginx/snippets
+    dest: /etc/nginx/
+  notify:
+    - reload nginx
+
+- name: Configure nginx sites
+  copy:
+    src: templates/nginx/sites-enabled
+    dest: /etc/nginx/
+  notify:
+    - reload nginx
+
+- name: Enable and start nginx
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Allow public access to nginx in firewall
+  ufw:
+    rule: allow
+    to_port: "{{ item }}"
+  loop:
+    - "80"
+    - "443"
