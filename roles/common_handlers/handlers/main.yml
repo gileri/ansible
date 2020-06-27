@@ -1,0 +1,24 @@
+---
+- name: Reload sshd
+  systemd:
+    name: sshd.service
+    state: reloaded
+
+- name: Restart netdata
+  systemd:
+    name: netdata.service
+    state: restarted
+
+- name: Reload nginx
+  systemd:
+    name: nginx.service
+    state: reloaded
+
+- name: Restart nginx
+  systemd:
+    name: nginx.service
+    state: restarted
+
+- name: Reload systemd services
+  systemd:
+    daemon_reload: yes
