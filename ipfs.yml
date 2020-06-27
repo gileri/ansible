@@ -1,4 +1,0 @@
----
-- hosts: ipfs
-  roles:
-    - ipfs

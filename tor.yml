@@ -1,4 +1,0 @@
----
-- hosts: tor
-  roles:
-    - nusenu.relayor
