@@ -34,7 +34,10 @@
         https_certificate_path: "/etc/ssl_certificates/rsshub.{{ top_domain_name }}/fullchain.pem"
         https_key_path: "/etc/ssl_certificates/rsshub.{{ top_domain_name }}/privatekey.pem"
       tags: rsshub
-    - nas
+    - role: nas
+      tags: [ nas ]
+      vars:
+        shared_paths: "{{ nfs_shared_paths }}"
     - role: borg_backup_target
       tags: [ borg_backup_target ]
     - role: tor

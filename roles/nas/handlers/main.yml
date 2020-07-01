@@ -1,2 +1,7 @@
 ---
-# handlers file for nas
+- name: Reload NFS exports
+  command: exportfs -ar
+- name: Reload NFS server
+  systemd:
+    name: nfs-server.service
+    state: restarted

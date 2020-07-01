@@ -1,6 +1,62 @@
 ---
+- name: Detect which firewall is enabled
+  include_role:
+    name: common
+    tasks_from: firewall_detection
+
 - name: Install packages
   pacman:
     name:
       - mdadm
       - nfs-utils
+
+- name: Add root nfs folder
+  file:
+    path: "{{ nfs_root }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Mount exports to nfs root
+  mount:
+    src: "{{ item }}"
+    path: "{{ nfs_root }}/{{ item | basename }}"
+    fstype: none
+    opts: bind
+    state: mounted
+  loop: "{{ shared_paths }}"
+
+- name: Set root export directory in nfs.conf
+  lineinfile:
+    path: /etc/nfs.conf
+    regexp: "(# *)?rootdir="
+    insertafter: "[exports]"
+    line: "rootdir={{ nfs_root }}"
+  notify: Restart NFS server
+
+- name: Add exports
+  template:
+    src: templates/nas.exports
+    dest: /etc/exports.d/
+    owner: root
+    group: root
+    mode: 0660
+  notify: Reload NFS exports
+
+- name: Enable and start NFS server
+  systemd:
+    name: nfs-server.service
+    state: started
+    enabled: true
+
+- name: Allow NFS access from local network
+  ufw:
+    rule: allow
+    src: "{{ local_cidr }}"
+    to_port: "{{ item }}"
+  loop:
+    - "111"
+    - "2049"
+    - "20048"
+  when: firewall is defined and firewall == "ufw"
