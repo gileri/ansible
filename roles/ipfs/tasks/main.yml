@@ -39,13 +39,9 @@
     - 192.168.0.0/16
   when: firewall is defined and firewall == "ufw"
 
-- name: Allow gateway access from RFC1918 networks
+- name: Allow gateway access from local network
   ufw:
     rule: allow
-    src: '{{ item }}'
+    src: '{{ local_cidr }}'
     to_port: "8080"
-  loop:
-    - 10.0.0.0/8
-    - 172.16.0.0/12
-    - 192.168.0.0/16
   when: firewall is defined and firewall == "ufw"
