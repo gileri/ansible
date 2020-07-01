@@ -8,6 +8,12 @@
     line: LANG=fr_FR.UTF-8
     path: /etc/locale.conf
 
+- name: Synchronize time
+  systemd:
+    name: systemd-timesyncd.service
+    state: started
+    enabled: yes
+
 - name: Upgrade packages
   pacman:
     update_cache: yes
