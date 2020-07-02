@@ -5,9 +5,74 @@
     tasks_from: firewall_detection
 
 - name: Create a dedicated user
+  group:
+    name: "{{ ipfs_group_name }}"
+
+- name: Create a dedicated user
   user:
-    name: "{{ user_name }}"
+    name: "{{ ipfs_user_name }}"
     create_home: yes
+    home: "{{ ipfs_home }}"
+    groups: "{{ ipfs_group_name }}"
+    append: yes
+
+- name: Create a dedicated user
+  file:
+    path: "{{ ipfs_home }}"
+    state: directory
+    owner: "{{ ipfs_user_name }}"
+
+- name: Create ipfs systemd service override folder
+  file:
+    path: "{{ ipfs_path }}"
+    state: directory
+    owner: "{{ ipfs_user_name }}"
+    group: "{{ ipfs_group_name }}"
+
+- name: Create ipfs systemd service override folder
+  file:
+    path: /etc/systemd/system/ipfs@.service.d/
+    state: directory
+
+- name: Set IPFS_PATH in service
+  template:
+    src: templates/ipfs_path.conf
+    dest: /etc/systemd/system/ipfs@.service.d/ipfs_path.conf
+  notify:
+    - Reload systemd services
+    - Restart ipfs systemd service
+
+- name: Copy default configuration
+  template:
+    src: templates/ipfs_config.json.j2
+    dest: "{{ ipfs_path }}/default_config"
+    owner: "{{ ipfs_user_name }}"
+    group: "{{ ipfs_group_name }}"
+    mode: "0600"
+  register: default_configuration_copy
+  notify: Restart ipfs systemd service
+
+- name: Stop IPFS daemon to apply new configuration
+  systemd:
+    name: "ipfs@{{ ipfs_user_name }}"
+    state: stopped
+  when: default_configuration_copy.changed is true
+
+- name: Remove previous configuration
+  file:
+    dest: "{{ ipfs_path }}/config"
+    state: absent
+  when: default_configuration_copy.changed is true
+
+- name: init IPFS
+  become: yes
+  become_user: "{{ ipfs_user_name }}"
+  command: "ipfs init --empty-repo -- {{ ipfs_path }}/default_config"
+  args:
+    creates: "{{ ipfs_path }}/config"
+  environment:
+    IPFS_PATH: "{{ ipfs_path }}"
+  notify: Restart ipfs systemd service
 
 - name: Install IPFS
   pacman:
@@ -19,29 +84,10 @@
   systemd:
     state: started
     enabled: yes
-    name: ipfs@{{ user_name }}
-    daemon_reload: yes
+    name: ipfs@{{ ipfs_user_name }}
 
 - name: Allow public access to swarm port in ufw
   ufw:
     rule: allow
     to_port: "4001"
-  when: firewall is defined and firewall == "ufw"
-
-- name: Allow API access from RFC1918 networks
-  ufw:
-    rule: allow
-    src: '{{ item }}'
-    to_port: "5001"
-  loop:
-    - 10.0.0.0/8
-    - 172.16.0.0/12
-    - 192.168.0.0/16
-  when: firewall is defined and firewall == "ufw"
-
-- name: Allow gateway access from local network
-  ufw:
-    rule: allow
-    src: '{{ local_cidr }}'
-    to_port: "8080"
   when: firewall is defined and firewall == "ufw"

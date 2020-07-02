@@ -27,7 +27,11 @@
       tags: [ torrent ]
     - role: web
       tags: [ web ]
-    - ipfs
+    - role: ipfs
+      vars:
+        ipfs_autonat_service_mode: disabled
+        ipfs_filestore_enabled: "true"
+      tags: [ ipfs ]
     - name: rsshub
       vars:
         domain_name: "rsshub.{{ top_domain_name }}"

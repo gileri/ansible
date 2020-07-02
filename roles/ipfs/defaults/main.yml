@@ -1,1 +1,10 @@
 ---
+ipfs_api_address: /ip4/127.0.0.1/tcp/5001
+ipfs_autonat_service_mode: enabled
+ipfs_filestore_enabled: "false" # Must be string to stay a valid json value
+ipfs_gateway_address: /ip4/127.0.0.1/tcp/8080
+ipfs_storage_max: "10GB"
+ipfs_user_name: ipfs
+ipfs_group_name: ipfs
+ipfs_home: /home/ipfs
+ipfs_path: "{{ ipfs_home }}/ipfs"
