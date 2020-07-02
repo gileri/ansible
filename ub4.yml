@@ -81,3 +81,8 @@
       authorized_key:
         key: "{{ lookup('file', 'authorized_keys/pierre') }}"
         user: pierre
+    - name: Bind mount NAS folder to IPFS home directory
+      file:
+        state: link
+        src: /mnt/data
+        path: "{{ ipfs_home }}/data"
