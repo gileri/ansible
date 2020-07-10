@@ -22,7 +22,13 @@
     state: directory
     owner: "{{ ipfs_user_name }}"
 
-- name: Create ipfs systemd service override folder
+- name: Install IPFS
+  pacman:
+    name: go-ipfs
+  when: ansible_facts["os_family"] == "Archlinux"
+  notify: Restart ipfs systemd service
+
+- name: Create ipfs working directory
   file:
     path: "{{ ipfs_path }}"
     state: directory
@@ -72,12 +78,6 @@
     creates: "{{ ipfs_path }}/config"
   environment:
     IPFS_PATH: "{{ ipfs_path }}"
-  notify: Restart ipfs systemd service
-
-- name: Install IPFS
-  pacman:
-    name: go-ipfs
-  when: ansible_facts["os_family"] == "Archlinux"
   notify: Restart ipfs systemd service
 
 - name: Start and enable ipfs systemd service
