@@ -13,6 +13,8 @@
     - role: common
       tags: [ common ]
     - docker
+    - role: web
+      tags: [ web ]
     - role: torrent
       vars:
         torrent_home: /mnt/data/home/torrent
@@ -20,8 +22,6 @@
         https_certificate_path: "/etc/ssl_certificates/rutorrent.{{ top_domain_name }}/fullchain.pem"
         https_key_path: "/etc/ssl_certificates/rutorrent.{{ top_domain_name }}/privatekey.pem"
       tags: [ torrent ]
-    - role: web
-      tags: [ web ]
     - role: ipfs
       vars:
         ipfs_autonat_service_mode: disabled
