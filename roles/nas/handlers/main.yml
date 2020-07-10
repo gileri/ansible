@@ -1,7 +1,7 @@
 ---
 - name: Reload NFS exports
   command: exportfs -ar
-- name: Reload NFS server
+- name: Restart NFS server
   systemd:
     name: nfs-server.service
     state: restarted

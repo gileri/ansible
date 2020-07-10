@@ -25,28 +25,28 @@
     src: templates/nginx/conf.d
     dest: /etc/nginx/
   notify:
-    - reload nginx
+    - Reload nginx
 
 - name: Configure nginx main conf
   copy:
     src: templates/nginx/nginx.conf
     dest: /etc/nginx/nginx.conf
   notify:
-    - reload nginx
+    - Reload nginx
 
 - name: Configure nginx snippets
   copy:
     src: templates/nginx/snippets
     dest: /etc/nginx/
   notify:
-    - reload nginx
+    - Reload nginx
 
 - name: Configure nginx sites
   copy:
     src: templates/nginx/sites-enabled
     dest: /etc/nginx/
   notify:
-    - reload nginx
+    - Reload nginx
 
 - name: Enable and start nginx
   systemd:

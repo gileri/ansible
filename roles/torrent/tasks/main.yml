@@ -71,7 +71,7 @@
 # TODO logrotate
 
 - name: Check whether rutorrent is installed
-  shell:
+  command:
     cmd: pacman -Q rutorrent
   changed_when: False
   register: rutorrent_pacman_status
@@ -95,7 +95,7 @@
         repo: https://aur.archlinux.org/rutorrent.git
         dest: /tmp/rutorrent
     - name: Build rutorrent package
-      shell:
+      command:
         chdir: /tmp/rutorrent
         cmd: makepkg --force --noconfirm --noprogressbar
     - name: Find build package file
@@ -131,7 +131,6 @@
     src: templates/rutorrent.htpasswd
     dest: /etc/nginx/snippets/
   notify: Reload nginx
-
 
 - name: Replace rutorrent configuration
   template:

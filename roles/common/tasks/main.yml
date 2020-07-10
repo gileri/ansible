@@ -94,7 +94,7 @@
   ufw:
     default: deny
     state: enabled
-    logging: off
+    logging: "off"
 
 - name: Enable ufw at boot
   systemd:

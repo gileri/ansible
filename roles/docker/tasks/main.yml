@@ -1,7 +1,7 @@
 ---
 - name: Install docker and its python library
   pacman:
-    name: 
+    name:
       - docker
       - python-docker
 - name: Enable and start docker
