@@ -111,7 +111,8 @@
       register: rutorrent_package_path
       failed_when: rutorrent_package_path.matched == 0
     - name: Install rutorrent
-      become: no
+      become: yes
+      become_user: root
       pacman:
         name: "{{ rutorrent_package_path.files[0].path }}"
     - name: Clean build folder

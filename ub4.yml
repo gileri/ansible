@@ -1,4 +1,5 @@
 - hosts: ub4
+  become: true
   pre_tasks:
     - name: Include local_vars
       include_vars:
