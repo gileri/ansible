@@ -52,11 +52,6 @@
           - "rutorrent.{{ top_domain_name }}"
           - "rsshub.{{ top_domain_name }}"
       tags: https
-    - role: terraria
-      vars:
-        package_path: "{{ terraria_package_path }}"
-        password: "{{ terraria_password }}"
-        maxplayers: 8
   tasks:
     - name: Add authorized_keys to root
       authorized_key:
