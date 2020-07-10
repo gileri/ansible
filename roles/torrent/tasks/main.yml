@@ -18,9 +18,12 @@
     to_port: "{{ rtorrent_dht_port }}"
   when: firewall is defined and firewall == "ufw"
 
-- name: Install rtorrent
+- name: Install rtorrent and extra dependencies
   package:
-    name: rtorrent
+    name:
+      - rtorrent
+      - sox
+      - ffmpeg
 
 - name: Create group
   group:
