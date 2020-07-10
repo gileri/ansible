@@ -44,3 +44,7 @@
     name: tor.service
     state: started
     enabled: yes
+
+- name: Set host variables
+  set_fact:
+    tor_group: tor
