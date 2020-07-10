@@ -71,7 +71,6 @@
       user:
         name: pierre
         groups:
-          - pierre
           - torrent
 
     - name: Add authorized_keys to pierre
