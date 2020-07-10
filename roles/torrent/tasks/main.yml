@@ -37,10 +37,13 @@
     home: "{{ torrent_home }}"
   register: user_info
 
-- name: Allow traversal of torrent home directory to group
+- name: Ensure rtorrent directory exists
   file:
+    state: directory
     path: "{{ rtorrent_var_dir }}"
-    mode: g+x
+    owner: torrent
+    group: torrent
+    mode: "0750"
 
 - name: Create rtorrent config directory
   file:
