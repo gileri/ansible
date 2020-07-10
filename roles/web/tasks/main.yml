@@ -61,3 +61,7 @@
   loop:
     - "80"
     - "443"
+
+- name: Set which web server to target
+  set_fact:
+    web_server: nginx
