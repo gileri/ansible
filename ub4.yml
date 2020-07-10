@@ -46,11 +46,18 @@
       tags: [ borg_backup_target ]
     - role: tor
       tags: [ tor ]
+    - role: netdata
+      vars:
+        domain_name: "netdata.ub4.{{ top_domain_name }}"
+        https_certificate_path: "/etc/ssl_certificates/netdata.ub4.{{ top_domain_name }}/fullchain.pem"
+        https_key_path: "/etc/ssl_certificates/netdata.ub4.{{ top_domain_name }}/privatekey.pem"
+      tags: [ netdata ]
     - role: https
       vars:
         https_domains:
           - "rutorrent.{{ top_domain_name }}"
           - "rsshub.{{ top_domain_name }}"
+          - "netdata.ub4.{{ top_domain_name }}"
       tags: https
   tasks:
     - name: Add authorized_keys to root

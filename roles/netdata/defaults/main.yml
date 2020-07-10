@@ -1,0 +1,4 @@
+---
+netdata_host: localhost
+netdata_port: 19999
+netdata_users: {}

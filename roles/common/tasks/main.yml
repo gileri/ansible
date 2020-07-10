@@ -31,7 +31,6 @@
       - zsh-completions
       - btrfs-progs
       - htop
-      - netdata
       - tmux
       - mosh
       - ufw
@@ -75,12 +74,6 @@
     state: started
     enabled: yes
 
-- name: Enable and start netdata
-  systemd:
-    name: netdata.service
-    state: started
-    enabled: yes
-
 - name: Disable SSH passphrase-based login
   lineinfile:
     path: /etc/ssh/sshd_config
@@ -104,22 +97,3 @@
   systemd:
     name: ufw
     enabled: yes
-
-- name: Make netdata listen on wildcard
-  lineinfile:
-    path: /etc/netdata/netdata.conf
-    insertafter: "\\[web\\]"
-    regexp: "^[^#]*bind to"
-    line: "bind to = *:19999=dashboard"
-  notify: Restart netdata
-
-- name: Allow local access to netdata in firewall
-  ufw:
-    from: "{{ item }}"
-    rule: allow
-    to_port: "19999"
-    proto: tcp
-  loop:
-    - 10.0.0.0/8
-    - 172.16.0.0/12
-    - 192.168.0.0/16

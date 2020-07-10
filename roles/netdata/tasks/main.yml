@@ -1,0 +1,41 @@
+---
+- name: Install netdata
+  pacman:
+    name: netdata
+
+- name: Enable and start netdata
+  systemd:
+    name: netdata.service
+    state: started
+    enabled: yes
+
+- name: Configure Tor plugin
+  template:
+    src: templates/netdata_tor.conf.j2
+    dest: /etc/netdata/python.d/tor.conf
+  when: tor_control_path is defined
+  notify: Restart netdata
+
+- name: Add netdata to tor group
+  user:
+    name: netdata
+    append: yes
+    groups: "{{ tor_group }}"
+  when: tor_group is defined
+  notify: Restart netdata
+
+- name: Add nginx htpasswd
+  template:
+    src: templates/netdata.htpasswd
+    dest: /etc/nginx/snippets/
+    owner: root
+    group: http
+    mode: 0640
+  notify: Reload nginx
+
+- name: Copy reverse proxy configuration
+  template:
+    src: templates/nginx_netdata.conf.j2
+    dest: /etc/nginx/sites-enabled/netdata.conf
+  when: web_server == 'nginx'
+  notify: Reload nginx

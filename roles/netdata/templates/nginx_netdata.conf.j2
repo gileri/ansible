@@ -1,0 +1,25 @@
+upstream netdata {
+    server {{ netdata_host }}:{{ netdata_port }};
+}
+
+server {
+    listen       80;
+    listen       [::]:80;
+
+    server_name  netdata.*;
+    return       301 https://$host$request_uri;
+}
+
+server {
+    server_name netdata.*;
+    include snippets/ssl.conf;
+    ssl_certificate {{ https_certificate_path }};
+    ssl_certificate_key {{ https_key_path }};
+
+    auth_basic "netdata";
+    auth_basic_user_file snippets/netdata.htpasswd;
+
+    location / {
+        proxy_pass http://netdata;
+    }
+}
