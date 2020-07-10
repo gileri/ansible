@@ -45,6 +45,9 @@
       - lsof
       - gptfdisk
       - man
+      - unzip
+      - unrar
+      - iotop
 
 - name: Create aur_builder user
   user:
