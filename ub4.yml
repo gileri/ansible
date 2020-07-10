@@ -9,6 +9,7 @@
         state: link
         src: /mnt/data/dl
         path: "{{ rtorrent_var_dir }}"
+      tags: [ real_machine ]
   roles:
     - role: common
       tags: [ common ]
@@ -82,3 +83,4 @@
         state: link
         src: /mnt/data
         path: "{{ ipfs_home }}/data"
+      tags: [ real_machine ]
