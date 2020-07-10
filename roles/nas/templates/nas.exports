@@ -1,0 +1,5 @@
+#{{ ansible_managed }}
+
+{% for p in shared_paths %}
+/{{ p | basename }} {{ local_cidr }}(rw,{{ sync_mode }})
+{% endfor %}
