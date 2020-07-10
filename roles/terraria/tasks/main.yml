@@ -4,12 +4,14 @@
     name: terraria
 
 - name: Check installed version
-  shell: "pacman -Q gog-terraria | cut -d\\  -f2 "
+  shell:
+    cmd: "pacman -Q gog-terraria"
   changed_when: False
+  failed_when: installed_package_info.rc not in (0,1)
   register: installed_package_info
 
 - name: Install game
-  when: installed_package_info.rc != 0 or installed_package_info.stdout != terraria_package_version
+  when: installed_package_info.rc != 0 or installed_package_info.rc == 0 and installed_package_info.stdout.split(' ')[1][:-1] != terraria_package_version
   block:
     - name: Copy Terraria package
       copy:
