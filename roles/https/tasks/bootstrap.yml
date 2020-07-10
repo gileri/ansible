@@ -1,37 +1,47 @@
 ---
-- name: Create required directories in /etc/letsencrypt
+- name: Create live root directory
   file:
-    path: "{{ item }}"
+    path: "{{ certificates_live_dir }}"
     state: directory
     owner: root
     group: root
-    mode: u=rwx,g=x,o=x
-  with_items:
-  - "{{ certificates_live_dir }}"
-  - "{{ certificates_live_dir }}/{{ domain }}"
+    mode: 0750
+
+- name: Create domain live directories root directory
+  file:
+    path: "{{ certificates_live_dir }}/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0750
+  loop: "{{ https_domains }}"
 
 - name: Generate private keys
   openssl_privatekey:
     size: 4096
-    path: "{{ certificates_live_dir }}/{{ domain }}/privatekey.pem"
+    path: "{{ certificates_live_dir }}/{{ item }}/privatekey.pem"
+  loop: "{{ https_domains }}"
 
 - name: Generate CSRs
   openssl_csr:
-    privatekey_path: "{{ certificates_live_dir }}/{{ domain }}/privatekey.pem"
-    path: "{{ certificates_live_dir }}/{{ domain }}/csr.pem"
+    privatekey_path: "{{ certificates_live_dir }}/{{ item }}/privatekey.pem"
+    path: "{{ certificates_live_dir }}/{{ item }}/csr.pem"
     digest: sha256
-    common_name: "{{ domain }}"
+    common_name: "{{ item }}"
+  loop: "{{ https_domains }}"
 
 - name: Check if there is already a certificate
   stat:
-    path: "{{ certificates_live_dir }}/{{ domain }}/fullchain.pem"
-  register: certifiace_stat
+    path: "{{ certificates_live_dir }}/{{ item }}/fullchain.pem"
+  register: certificate_stat
+  loop: "{{ https_domains }}"
 
 - name: Generate temporary self-signed certificates
   openssl_certificate:
-    privatekey_path: "{{ certificates_live_dir }}/{{ domain }}/privatekey.pem"
-    csr_path: "{{ certificates_live_dir }}/{{ domain }}/csr.pem"
-    path: "{{ certificates_live_dir }}/{{ domain }}/fullchain.pem"
+    privatekey_path: "{{ certificates_live_dir }}/{{ item.item }}/privatekey.pem"
+    csr_path: "{{ certificates_live_dir }}/{{ item.item }}/csr.pem"
+    path: "{{ certificates_live_dir }}/{{ item.item }}/fullchain.pem"
     provider: selfsigned
     force: no # Ensure that valid or previous certificates would not be overwritten
-  when: certificate_stat.exists is false
+  when: item.stat.exists is false
+  loop: "{{ certificate_stat.results }}"

@@ -120,13 +120,6 @@
         path: /tmp/rutorrent
         state: absent
 
-- name: Generate self-signed HTTPS certificate
-  import_role:
-    name: https
-    tasks_from: bootstrap.yml
-  vars:
-    domain: "{{ domain_name }}"
-
 - name: Add rutorrent nginx configuration
   template:
     src: templates/nginx_rutorrent.conf
