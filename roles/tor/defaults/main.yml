@@ -3,3 +3,7 @@ tor_user: tor
 tor_or_port: 110
 tor_dir_port: 143
 tor_control_port: 9051
+tor_relay_bandwidth_rate: 30KBits
+tor_relay_bandwidth_burst: 50KBits
+tor_contact_info: changeme
+cookie_authentication: 0

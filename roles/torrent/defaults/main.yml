@@ -4,6 +4,7 @@ rtorrent_dht_port: 6881
 rtorrent_config_dir: /etc/rtorrent
 rtorrent_config_file: rtorrent.rc
 rtorrent_var_dir: /var/lib/rtorrent
+rutorrent_users: {}
 torrent_user: torrent
 torrent_group: torrent
 torrent_home: /home/torrent
