@@ -84,7 +84,9 @@ DataDirectoryGroupReadable 1
 
 ## Required: what port to advertise for incoming Tor connections.
 ORPort {{ tor_or_port }}
+{% if public_ipv6 is defined %}
 ORPort {{ public_ipv6 }}:{{ tor_or_port }}
+{% endif %}
 ## If you want to listen on a port other than the one advertised in
 ## ORPort (e.g. to advertise 443 but bind to 9090), you can do it as
 ## follows.  You'll need to do ipchains or other port forwarding
