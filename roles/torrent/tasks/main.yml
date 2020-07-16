@@ -96,20 +96,23 @@
   become_user: aur_builder
   when: rutorrent_pacman_status.rc != 0 or force_rutorrent_installation
   block:
+    - set_fact:
+        rutorrent_build_folder: "/tmp/rutorrent{{ 99999 | random }}"
+      run_once: yes
     - name: Get rutorrent package
       git:
         repo: https://aur.archlinux.org/rutorrent.git
-        dest: /tmp/rutorrent
+        dest: "{{ rutorrent_build_folder }}"
     - name: Build rutorrent package
       command:
-        chdir: /tmp/rutorrent
+        chdir: "{{ rutorrent_build_folder }}"
         cmd: makepkg --force --noconfirm --noprogressbar
       environment:
         # Workaround until https://github.com/ansible-collections/community.general/pull/650
         PKGEXT: .pkg.tar.xz
     - name: Find build package file
       find:
-        paths: /tmp/rutorrent
+        paths: "{{ rutorrent_build_folder }}"
         patterns: rutorrent*.pkg.*
       register: rutorrent_package_path
       failed_when: rutorrent_package_path.matched == 0
@@ -120,7 +123,7 @@
         name: "{{ rutorrent_package_path.files[0].path }}"
     - name: Clean build folder
       file:
-        path: /tmp/rutorrent
+        path: "{{ rutorrent_build_folder }}"
         state: absent
 
 - name: Add rutorrent nginx configuration
