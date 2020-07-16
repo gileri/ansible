@@ -8,6 +8,8 @@ Type=simple
 ExecStart=/usr/bin/tor -f /etc/tor/torrc
 ExecReload=/usr/bin/kill -HUP $MAINPID
 KillSignal=SIGINT
+Restart=on-failure
+RestartSec=10s
 LimitNOFILE=8192
 PrivateDevices=yes
 
