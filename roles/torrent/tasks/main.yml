@@ -81,7 +81,7 @@
     cmd: pacman -Q rutorrent
   changed_when: False
   register: rutorrent_pacman_status
-  failed_when: rutorrent_pacman_status.rc != 0 and rutorrent_pacman_status.rc != 1
+  failed_when: rutorrent_pacman_status.rc not in (0, 1)
 
 - name: Install rutorrent dependencies
   pacman:
