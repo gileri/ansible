@@ -1,9 +1,6 @@
 - hosts: ub4
   become: true
   pre_tasks:
-    - name: Include local_vars
-      include_vars:
-        file: local_vars.yml
     - name: Bind-mount rtorrent var directory
       file:
         state: link
