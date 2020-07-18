@@ -9,25 +9,25 @@
         state: link
         src: /mnt/data/dl
         path: "{{ rtorrent_var_dir }}"
-      tags: [ real_machine ]
+      tags: [real_machine]
   roles:
     - role: common
-      tags: [ common ]
+      tags: [common]
     - docker
     - role: web
-      tags: [ web ]
+      tags: [web]
     - role: torrent
       vars:
         torrent_home: /mnt/data/home/torrent
         domain_name: "rutorrent.{{ top_domain_name }}"
         https_certificate_path: "/etc/ssl_certificates/rutorrent.{{ top_domain_name }}/fullchain.pem"
         https_key_path: "/etc/ssl_certificates/rutorrent.{{ top_domain_name }}/privatekey.pem"
-      tags: [ torrent ]
+      tags: [torrent]
     - role: ipfs
       vars:
         ipfs_autonat_service_mode: disabled
         ipfs_filestore_enabled: "true"
-      tags: [ ipfs ]
+      tags: [ipfs]
     - name: rsshub
       vars:
         domain_name: "rsshub.{{ top_domain_name }}"
@@ -35,14 +35,14 @@
         https_key_path: "/etc/ssl_certificates/rsshub.{{ top_domain_name }}/privatekey.pem"
       tags: rsshub
     - role: nas
-      tags: [ nas ]
+      tags: [nas]
       vars:
         shared_paths: "{{ nfs_shared_paths }}"
     - role: borg_backup_target
-      tags: [ borg_backup_target ]
+      tags: [borg_backup_target]
     - role: tor
-      tags: [ tor ]
-    - role: netdata
+      tags: [tor]
+    - role: monitoring_node
       vars:
         domain_name: "netdata.ub4.{{ top_domain_name }}"
         https_certificate_path: "/etc/ssl_certificates/netdata.ub4.{{ top_domain_name }}/fullchain.pem"
@@ -83,4 +83,4 @@
         state: link
         src: /mnt/data
         path: "{{ ipfs_home }}/data"
-      tags: [ real_machine ]
+      tags: [real_machine]

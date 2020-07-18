@@ -42,6 +42,6 @@
     csr_path: "{{ certificates_live_dir }}/{{ item.item }}/csr.pem"
     path: "{{ certificates_live_dir }}/{{ item.item }}/fullchain.pem"
     provider: selfsigned
-    force: no # Ensure that valid or previous certificates would not be overwritten
+    force: false  # Ensure that valid or previous certificates would not be overwritten
   when: item.stat.exists is false
   loop: "{{ certificate_stat.results }}"
