@@ -45,3 +45,4 @@
     force: false  # Ensure that valid or previous certificates would not be overwritten
   when: item.stat.exists is false
   loop: "{{ certificate_stat.results }}"
+  notify: Reload nginx
