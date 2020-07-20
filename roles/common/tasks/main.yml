@@ -60,7 +60,7 @@
 
 - name: Update mirrorlist
   copy:
-    remote_src: yes
+    remote_src: true
     src: /etc/pacman.d/mirrorlist.pacnew
     dest: /etc/pacman.d/mirrorlist
   when: mirrorlist_pacnew.stat.exists
@@ -69,7 +69,6 @@
   shell:
     command: reflector --country France --latest 200 --age 2 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
   when: mirrorlist_pacnew.stat.exists
-  # TODO Re-rank periodically based on mtime
 
 - name: Enable and start sshd socket # Duh
   systemd:
