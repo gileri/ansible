@@ -72,14 +72,15 @@
   systemd:
     name: rtorrent.service
     state: started
-    enabled: yes
+    enabled: true
+    daemon_reload: true
 
 # TODO logrotate
 
 - name: Check whether rutorrent is installed
   command:
     cmd: pacman -Q rutorrent
-  changed_when: False
+  changed_when: false
   register: rutorrent_pacman_status
   failed_when: rutorrent_pacman_status.rc not in (0, 1)
 
@@ -92,13 +93,13 @@
       - coreutils
 
 - name: Build and install rutorrent
-  become: yes
+  become: true
   become_user: aur_builder
   when: rutorrent_pacman_status.rc != 0 or force_rutorrent_installation
   block:
     - set_fact:
         rutorrent_build_folder: "/tmp/rutorrent{{ 99999 | random }}"
-      run_once: yes
+      run_once: true
     - name: Get rutorrent package
       git:
         repo: https://aur.archlinux.org/rutorrent.git
@@ -117,7 +118,7 @@
       register: rutorrent_package_path
       failed_when: rutorrent_package_path.matched == 0
     - name: Install rutorrent
-      become: yes
+      become: true
       become_user: root
       pacman:
         name: "{{ rutorrent_package_path.files[0].path }}"
@@ -157,6 +158,6 @@
 - name: Add web server user to torrent group
   user:
     name: http
-    append: yes
+    append: true
     groups: torrent
   notify: Restart nginx
