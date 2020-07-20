@@ -1,0 +1,3 @@
+---
+collectd_exporter_port: "9103"
+hddtemp_monitored_disks: []

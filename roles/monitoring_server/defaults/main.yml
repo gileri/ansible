@@ -1,0 +1,8 @@
+---
+# Can only be changed during initial set-up.
+grafana_admin_account: "admin"
+grafana_admin_password: "admin"
+grafana_host: localhost
+grafana_socket_path: /var/lib/grafana/socket
+
+web_server_user: http

@@ -41,16 +41,26 @@
       tags: [tor]
     - role: monitoring_node
       vars:
-        domain_name: "netdata.ub4.{{ top_domain_name }}"
-        https_certificate_path: "/etc/ssl_certificates/netdata.ub4.{{ top_domain_name }}/fullchain.pem"
-        https_key_path: "/etc/ssl_certificates/netdata.ub4.{{ top_domain_name }}/privatekey.pem"
-      tags: [ netdata ]
+        nginx_status_host: localhost
+        nginx_status_path: /basic_status
+        nginx_status_port: 80
+      tags: [monitoring_node]
+    - role: monitoring_server
+      vars:
+        prometheus_targets:
+          node:
+            - targets: "{{ groups['monitored_nodes'] | map('extract', hostvars, 'collectd_exporter_url') | list }}"
+        grafana_domain_name: "grafana.{{ top_domain_name }}"
+        grafana_https_certificate_path: "/etc/ssl_certificates/grafana.{{ top_domain_name }}/fullchain.pem"
+        grafana_https_key_path: "/etc/ssl_certificates/grafana.{{ top_domain_name }}/privatekey.pem"
+
+      tags: [monitoring_server]
     - role: https
       vars:
         https_domains:
           - "rutorrent.{{ top_domain_name }}"
           - "rsshub.{{ top_domain_name }}"
-          - "netdata.ub4.{{ top_domain_name }}"
+          - "grafana.{{ top_domain_name }}"
       tags: https
   tasks:
     - name: Add authorized_keys to root

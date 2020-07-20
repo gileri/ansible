@@ -1,0 +1,5 @@
+[Service]
+# ExecStart function as a list. Setting it to an empty value resets the list
+# See SYSTEMD.UNIT(5)
+ExecStart=
+ExecStart=/usr/bin/hddtemp --daemon --foreground {{ hddtemp_monitored_disks | join(' ') }} --listen=127.0.0.1

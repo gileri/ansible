@@ -1,0 +1,22 @@
+upstream grafana {
+    server unix:{{ grafana_socket_path }};
+}
+
+server {
+    listen       80;
+    listen       [::]:80;
+
+    server_name  {{ grafana_domain_name }};
+    return       301 https://$host$request_uri;
+}
+
+server {
+    server_name {{ grafana_domain_name }};
+    include snippets/ssl.conf;
+    ssl_certificate {{ grafana_https_certificate_path }};
+    ssl_certificate_key {{ grafana_https_key_path }};
+
+    location / {
+        proxy_pass http://grafana;
+    }
+}

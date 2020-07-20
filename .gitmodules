@@ -1,0 +1,6 @@
+[submodule "roles/ansible-grafana"]
+	path = roles/ansible-grafana
+	url = https://github.com/gileri/ansible-grafana.git
+[submodule "roles/ansible-prometheus"]
+	path = roles/ansible-prometheus
+	url = https://github.com/gileri/ansible-prometheus.git

@@ -1,0 +1,10 @@
+---
+- name: Reload collectd
+  systemd:
+    name: collectd.service
+    state: reloaded
+
+- name: Restart hddtemp
+  systemd:
+    name: hddtemp.service
+    state: restarted

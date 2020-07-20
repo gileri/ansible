@@ -1,0 +1,62 @@
+{{ ansible_managed | comment }}
+
+LoadPlugin syslog 
+LoadPlugin cpu                      
+LoadPlugin load                            
+LoadPlugin memory
+LoadPlugin conntrack
+LoadPlugin contextswitch
+LoadPlugin cpufreq
+LoadPlugin disk
+LoadPlugin hddtemp
+LoadPlugin sensors
+LoadPlugin swap
+LoadPlugin thermal
+LoadPlugin uptime
+LoadPlugin nfs
+
+
+<Include "/etc/collectd.d">
+    Filter "*.conf"
+</Include>
+
+LoadPlugin write_prometheus
+<Plugin "write_prometheus">
+    Port {{ collectd_exporter_port }}
+</Plugin>
+
+{% if nginx_status_path is defined: %}
+LoadPlugin nginx
+<Plugin "nginx">
+    URL "http://{{ nginx_status_host }}:{{ nginx_status_port }}{{ nginx_status_path }}"
+</Plugin>
+{% endif %}
+
+
+{% if monitored_network_interfaces is defined and monitored_network_interfaces | length > 0 %}
+LoadPlugin interface                      
+<Plugin "interface">
+{% for i in monitored_network_interfaces %}
+Interface "{{ i }}"
+{% endfor %}
+</Plugin>
+{% endif %}
+
+{% if df_monitored_mountpoints is defined and df_monitored_mountpoints | length > 0 %}
+LoadPlugin df
+<Plugin "df">
+{% for m in df_monitored_mountpoints %}
+MountPoint "{{ m }}"
+{% endfor %}
+</Plugin>
+{% endif %}
+
+{% if collectd_ping_targets is defined and collectd_ping_targets | length > 0 %}
+LoadPlugin ping
+<Plugin "ping">
+    Interval 15
+    {% for target in collectd_ping_targets: %}
+    Host "{{ target }}"
+    {% endfor %}
+</Plugin>
+{% endif %}

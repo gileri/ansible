@@ -37,5 +37,5 @@
   template:
     src: templates/nginx_netdata.conf.j2
     dest: /etc/nginx/sites-enabled/netdata.conf
-  when: web_server == 'nginx'
+  when: web_server is defined and web_server == 'nginx'
   notify: Reload nginx
