@@ -1,4 +1,5 @@
 ---
+tor_data_directory: /var/lib/tor
 tor_user: tor
 tor_or_port: 110
 tor_dir_port: 143
