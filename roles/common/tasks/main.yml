@@ -48,6 +48,7 @@
       - unzip
       - unrar
       - iotop
+      - sysstat
 
 - name: Create aur_builder user
   user:
