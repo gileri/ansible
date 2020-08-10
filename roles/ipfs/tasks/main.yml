@@ -91,3 +91,18 @@
     rule: allow
     to_port: "4001"
   when: firewall is defined and firewall == "ufw"
+
+- name: Copy gateway nginx configuration
+  template:
+    src: nginx_gateway.j2
+    dest: "/etc/nginx/conf.d/ipfs_gateway.conf"
+  notify: Reload nginx
+  when: web_server is defined and web_server == 'nginx'
+
+- name: Copy nginx configuration
+  template:
+    src: nginx_config.j2
+    dest: "/etc/nginx/sites-enabled/{{ item.key }}.conf"
+  notify: Reload nginx
+  when: web_server is defined and web_server == 'nginx'
+  loop: "{{ query('dict', ipfs_gateway_sites) }}"

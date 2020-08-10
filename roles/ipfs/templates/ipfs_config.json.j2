@@ -88,7 +88,17 @@
         "*"
       ]
     },
+    "NoFetch": true,
+    "NoDNSLink": true,
     "PathPrefixes": [],
+    "PublicGateways": {
+    {% for g in ipfs_gateway_sites.keys(): %}
+      "{{ g }}": {
+        "NoDNSLink": false,
+        "Paths": []
+      }{% if not loop.last %},{% endif %}
+    {% endfor %}
+    },
     "RootRedirect": "",
     "Writable": false
   },

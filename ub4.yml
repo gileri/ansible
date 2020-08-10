@@ -61,6 +61,7 @@
           - "rutorrent.{{ top_domain_name }}"
           - "rsshub.{{ top_domain_name }}"
           - "grafana.{{ top_domain_name }}"
+          - "blog.{{ top_domain_name }}"
       tags: https
   tasks:
     - name: Add authorized_keys to root

@@ -1,0 +1,29 @@
+server {
+    listen       80;
+    listen       [::]:80;
+
+    server_name  {{ item.key }};
+    return       301 https://$host$request_uri;
+}
+
+server {
+    server_name  {{ item.key }};
+    include snippets/ssl.conf;
+
+    ssl_certificate {{ item.value.https_certificate_path }};
+    ssl_certificate_key {{ item.value.https_key_path }};
+
+    location /ipfs {
+        return 404;
+    }
+
+    location /ipns {
+        return 404;
+    }
+
+    location / {
+        proxy_pass http://ipfs_gateway;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+    }
+}
