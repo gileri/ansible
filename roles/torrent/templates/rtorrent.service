@@ -6,6 +6,7 @@ After=network.target
 Type=simple
 User={{ torrent_user }}
 Group={{ torrent_group }}
+ExecStartPre=/usr/bin/rm -f {{ rtorrent_var_dir }}/session/rtorrent.lock
 ExecStart=/usr/bin/rtorrent -n -o import={{ rtorrent_config_dir}}/{{ rtorrent_config_file }}
 Restart=on-failure
 KillSignal=SIGINT
