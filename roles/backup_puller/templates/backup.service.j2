@@ -1,0 +1,18 @@
+[Unit]
+Description=Backup {{ item.name }} from {{ item.src }} to {{ item.dest }}
+RequiresMountsFor=/run/backup_puller/{{ item.name }}
+BindsTo=run-backup_puller-{{ item.name }}.mount
+After=run-backup_puller-{{ item.name }}.mount
+
+[Service]
+Type=oneshot
+ExecStart={{ mcli_path }} mirror --overwrite --storage-class {{ item.storage_class | default('STANDARD') }} /run/backup_puller/{{ item.name }} {{ item.dest }}
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+#ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true

@@ -1,0 +1,39 @@
+---
+- hosts: backup_puller_target
+  handlers:
+    - name: Reload sshd
+      systemd:
+        name: sshd.service
+        state: reloaded
+
+  tasks:
+    - name: Add backup_puller user
+      user:
+        name: backup_puller
+        groups:
+          - torrent
+
+    - name: Add backup_puller authorized_keys
+      authorized_key:
+        user: backup_puller
+        key: "{{ backup_puller_ssh_key }}"
+
+    - name: Create sshd_config.d
+      file:
+        path: /etc/ssh/sshd_config.d
+        state: directory
+        mode: 0755
+
+    - name: Source sshd_config.d in sshd config
+      lineinfile:
+        line: "Include /etc/ssh/sshd_config.d/*.conf"
+        path: "/etc/ssh/ssh_config"
+      notify: Reload sshd
+
+    - name: Only allow read-only sftp access to backup_puller
+      copy:
+        dest: /etc/ssh/sshd_config.d/backup_puller.conf
+        content: |
+          Match User backup_puller
+            ForceCommand internal-sftp -R
+      notify: Reload sshd

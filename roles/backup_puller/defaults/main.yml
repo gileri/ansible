@@ -1,0 +1,14 @@
+---
+systemd_prefix: s3-backup-
+backup_local_user: root
+minio_aliases:
+  play:
+    url: https://play.min.io
+    accessKey: "Q3AM3UQ867SPQQA43P2F"
+    secretKey: "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
+    api: S3v4
+    path: auto
+
+minio_config:
+  version: "10"  # Must be string
+  aliases: "{{ minio_aliases }}"

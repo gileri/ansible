@@ -1,0 +1,10 @@
+[Unit]
+Description={{ item.name }} sshfs mount
+StopWhenUnneeded=true
+
+[Mount]
+Type=fuse.sshfs
+What={{ item.src }}
+Where=/run/backup_puller/{{ item.name }}
+ForceUnmount=true
+Options=ro,reconnect

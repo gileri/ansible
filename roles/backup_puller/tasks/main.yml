@@ -1,0 +1,91 @@
+---
+- name: Assert that mount names are valid
+  assert:
+    that: item.name is regex("^[a-zA-Z0-9_]*$")
+  loop: "{{ s3_backups }}"
+- name: Gather variables for each operating system
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+
+- name: Install packages
+  package:
+    name:
+      - sshfs
+
+- name: Install minio from distribution repositories
+  package:
+    name:
+      - "{{ minio_client_package }}"
+  when: minio_client_package is defined
+
+- name: Install minio from dl.min.io
+  get_url:
+    url: https://dl.min.io/client/mc/release/linux-amd64/mc
+    dest: "{{ mcli_path }}"
+    mode: 0755
+    owner: root
+    group: root
+  when: minio_client_package is not defined
+
+- name: Create minio client config folder
+  file:
+    path: "~{{ backup_local_user }}/{{ minio_config_dir }}"
+    state: directory
+    mode: 0700
+    owner: "{{ backup_local_user }}"
+
+- name: Configure minio
+  copy:
+    content: "{{ minio_config | to_nice_json }}"
+    dest: "~{{ backup_local_user }}/{{ minio_config_dir }}/config.json"
+
+- name: Ensure configuration is valid
+  command: "{{ mcli_path }} config host list -q"
+  changed_when: false
+
+- name: Generate SSH key pair
+  openssh_keypair:
+    path: "~/.ssh/id_rsa"
+
+- name: Copy mount units
+  template:
+    src: backup.mount.j2
+    # Name of systemd unit must match mountpoint with some replacements.
+    # See systemd.mount and systemd.unit man pages
+    dest: "/etc/systemd/system/run-backup_puller-{{ item.name }}.mount"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ s3_backups }}"
+  notify: Reload systemd services
+
+- name: Add services
+  template:
+    src: templates/backup.service.j2
+    dest: "/etc/systemd/system/{{ systemd_prefix }}{{ item.name }}.service"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ s3_backups }}"
+  notify: Reload systemd services
+
+- name: Add timers
+  template:
+    src: templates/backup.timer.j2
+    dest: "/etc/systemd/system/{{ systemd_prefix }}{{ item.name }}.timer"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ s3_backups }}"
+  notify: Reload systemd services
+
+- name: Start and enable timers
+  systemd:
+    name: "{{ systemd_prefix }}{{ item.name }}.timer"
+    state: started
+    enabled: true
+    daemon_reload: true
+  loop: "{{ s3_backups }}"

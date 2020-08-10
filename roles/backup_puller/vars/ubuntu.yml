@@ -1,0 +1,4 @@
+---
+minio_config_dir: .mc
+mcli_binary: mc
+mcli_path: /usr/local/bin/mc
