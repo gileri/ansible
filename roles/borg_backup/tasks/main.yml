@@ -6,6 +6,10 @@
     - "{{ ansible_distribution | lower }}.yml"
     - "{{ ansible_os_family | lower }}.yml"
 
+- name: Create borg group
+  group:
+    name: "{{ borg_backup_group }}"
+
 - name: Ensure directories exists
   file:
     path: "{{ item }}"

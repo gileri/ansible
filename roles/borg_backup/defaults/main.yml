@@ -4,5 +4,5 @@ borg_backup_compression: auto,zstd
 borg_backup_encryption: keyfile
 borg_backup_service_name: borg-backup
 borg_backup_user: root
-borg_backup_group: root
+borg_backup_group: borg
 borg_backup_repository: /var/lib/borg_backup
