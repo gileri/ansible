@@ -35,7 +35,7 @@
 	$forbidUserSettings = true;
 
 	$scgi_port = 0;
-	$scgi_host = "unix://{{ rtorrent_var_dir }}/session/rpc.socket";
+	$scgi_host = "unix://{{ torrent_rtorrent_scgi_path }}";
 
 	// For web->rtorrent link through unix domain socket 
 	// (scgi_local in rtorrent conf file), change variables 

@@ -65,8 +65,17 @@
     src: templates/rtorrent.service
     dest: /etc/systemd/system/rtorrent.service
   notify:
-      - Reload systemd services
-      - Restart rtorrent
+    - Restart rtorrent
+
+- name: Create temporary files at boot
+  template:
+    src: templates/rtorrent_tmpfiles.j2
+    dest: /etc/tmpfiles.d/rtorrent.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Restart rtorrent
 
 - name: Start and enable systemd service
   systemd:

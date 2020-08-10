@@ -1,0 +1,3 @@
+{{ ansible_managed | comment }}
+d {{ torrent_rtorrent_scgi_path | dirname }} 0750 {{ torrent_user }} {{ torrent_group }}
+f {{ torrent_rtorrent_scgi_path }} 0660 {{ torrent_user }} {{ torrent_group }}
