@@ -43,7 +43,7 @@
   systemd:
     name: tor.service
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Set host variables
   set_fact:

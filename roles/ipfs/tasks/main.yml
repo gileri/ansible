@@ -11,10 +11,10 @@
 - name: Create a dedicated user
   user:
     name: "{{ ipfs_user_name }}"
-    create_home: yes
+    create_home: true
     home: "{{ ipfs_home }}"
     groups: "{{ ipfs_group_name }}"
-    append: yes
+    append: true
 
 - name: Create a dedicated user
   file:
@@ -71,7 +71,7 @@
   when: default_configuration_copy.changed is true
 
 - name: init IPFS
-  become: yes
+  become: true
   become_user: "{{ ipfs_user_name }}"
   command: "ipfs init --empty-repo -- {{ ipfs_path }}/default_config"
   args:
@@ -83,7 +83,7 @@
 - name: Start and enable ipfs systemd service
   systemd:
     state: started
-    enabled: yes
+    enabled: true
     name: ipfs@{{ ipfs_user_name }}
 
 - name: Allow public access to swarm port in ufw

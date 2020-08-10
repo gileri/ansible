@@ -42,7 +42,7 @@
   systemd:
     name: terraria
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Remove terraria package
   file:

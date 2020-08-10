@@ -1,3 +1,4 @@
+---
 - hosts: ub4
   become: true
   pre_tasks:
@@ -53,7 +54,6 @@
         grafana_domain_name: "grafana.{{ top_domain_name }}"
         grafana_https_certificate_path: "/etc/ssl_certificates/grafana.{{ top_domain_name }}/fullchain.pem"
         grafana_https_key_path: "/etc/ssl_certificates/grafana.{{ top_domain_name }}/privatekey.pem"
-
       tags: [monitoring_server]
     - role: https
       vars:

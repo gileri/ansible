@@ -7,7 +7,7 @@
   systemd:
     name: netdata.service
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Configure Tor plugin
   template:
@@ -19,7 +19,7 @@
 - name: Add netdata to tor group
   user:
     name: netdata
-    append: yes
+    append: true
     groups: "{{ tor_group }}"
   when: tor_group is defined
   notify: Restart netdata

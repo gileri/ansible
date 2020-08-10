@@ -9,7 +9,7 @@
   systemd:
     name: php-fpm
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Install nginx
   pacman:
@@ -52,7 +52,7 @@
   systemd:
     name: nginx
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Allow public access to nginx in firewall
   ufw:

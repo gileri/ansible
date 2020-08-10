@@ -12,12 +12,12 @@
   systemd:
     name: systemd-timesyncd.service
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Upgrade packages
   pacman:
-    update_cache: yes
-    upgrade: yes
+    update_cache: true
+    upgrade: true
 
 - name: Install packages
   pacman:
@@ -70,11 +70,11 @@
     command: reflector --country France --latest 200 --age 2 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
   when: mirrorlist_pacnew.stat.exists
 
-- name: Enable and start sshd socket # Duh
+- name: Enable and start sshd socket  # Duh
   systemd:
     name: sshd.service
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Disable SSH passphrase-based login
   lineinfile:
@@ -98,4 +98,4 @@
 - name: Enable ufw at boot
   systemd:
     name: ufw
-    enabled: yes
+    enabled: true

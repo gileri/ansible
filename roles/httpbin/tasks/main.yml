@@ -24,4 +24,4 @@
   systemd:
     name: httpbin.service
     state: started
-    enabled: yes
+    enabled: true
