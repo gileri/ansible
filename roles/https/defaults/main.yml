@@ -5,6 +5,6 @@ acme_directory: https://acme-v02.api.letsencrypt.org/directory
 acme_version: 2
 acme_challenge_directory: /srv/http/acme
 certificates_live_dir: /etc/ssl_certificates
-certbot_account_directory: /etc/letsencrypt
-certbot_account_key: "{{ certbot_account_directory }}/account/account.pem"
+certbot_account_directory: /etc/letsencrypt/account
+certbot_account_key: "{{ certbot_account_directory }}/account.pem"
 certificate_min_remaining_days: 10 # Certificate will be renewed if expiration date is less than this variable days away
