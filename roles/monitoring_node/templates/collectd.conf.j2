@@ -20,6 +20,17 @@ LoadPlugin nfs
     Filter "*.conf"
 </Include>
 
+<Plugin "nfs">
+    ReportV2 false
+    ReportV3 false
+    ReportV4 true
+</Plugin>
+
+<Plugin "cpu">
+    ReportByState false
+    ReportByCpu true
+</Plugin>
+
 LoadPlugin write_prometheus
 <Plugin "write_prometheus">
     Port {{ collectd_exporter_port }}
