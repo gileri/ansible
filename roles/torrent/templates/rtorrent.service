@@ -5,6 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User={{ torrent_user }}
+Group={{ torrent_group }}
 ExecStart=/usr/bin/rtorrent -n -o import={{ rtorrent_config_dir}}/{{ rtorrent_config_file }}
 Restart=on-failure
 KillSignal=SIGINT
