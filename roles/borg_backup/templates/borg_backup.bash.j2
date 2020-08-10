@@ -1,0 +1,12 @@
+#!/bin/bash
+{{ ansible_managed | comment }}
+
+export BORG_PASSPHRASE='{{ borg_backup_passphrase }}'
+
+backup_sources=(
+{% for source in borg_backup_sources %}
+    "{{ source }}"
+{% endfor %}
+)
+
+/usr/bin/borg create --compression {{ borg_backup_compression }} {{ borg_backup_repository }}::'{{ borg_backup_archive_name }}' "${backup_sources[@]}"

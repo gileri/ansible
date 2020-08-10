@@ -1,0 +1,60 @@
+---
+- name: Gather variables for each operating system
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+
+- name: Ensure directories exists
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "{{ borg_backup_user }}"
+    group: "{{ borg_backup_group }}"
+  loop:
+    - "{{ borg_backup_repository }}"
+
+- name: Install borg
+  package:
+    name: "{{ borg_package_name }}"
+
+- name: Check if repo is initialized
+  command: borg info "{{ borg_backup_repository }}"
+  environment:
+    BORG_PASSPHRASE: "{{ borg_backup_passphrase }}"
+  register: borg_info
+  changed_when: false
+  failed_when: borg_info.rc != 0 and borg_info.rc != 2
+
+- name: Init borg repo
+  command: borg init "{{ borg_backup_repository }}" --encryption "{{ borg_backup_encryption }}"
+  environment:
+    BORG_PASSPHRASE: "{{ borg_backup_passphrase }}"
+  when: borg_info.rc != 0
+
+- name: Add borg backup script
+  template:
+    src: templates/borg_backup.bash.j2
+    dest: /usr/local/bin/borg_backup
+    mode: 0754
+    owner: root
+    group: root
+
+- name: Add timers
+  template:
+    src: templates/backup.timer.j2
+    dest: "/etc/systemd/system/{{ borg_backup_service_name }}.timer"
+
+- name: Add services
+  template:
+    src: templates/backup.service.j2
+    dest: "/etc/systemd/system/{{ borg_backup_service_name }}.service"
+
+- name: Start and enable timers
+  systemd:
+    name: "{{ borg_backup_service_name }}.timer"
+    state: started
+    enabled: true
+    daemon_reload: true

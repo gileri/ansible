@@ -63,6 +63,8 @@
           - "grafana.{{ top_domain_name }}"
           - "blog.{{ top_domain_name }}"
       tags: https
+    - role: borg_backup
+      tags: [borg_backup]
   tasks:
     - name: Add authorized_keys to root
       authorized_key:
