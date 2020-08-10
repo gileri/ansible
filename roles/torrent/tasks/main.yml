@@ -106,7 +106,8 @@
   become_user: aur_builder
   when: rutorrent_pacman_status.rc != 0 or force_rutorrent_installation
   block:
-    - set_fact:
+    - name: Set random build directory
+      set_fact:
         rutorrent_build_folder: "/tmp/rutorrent{{ 99999 | random }}"
       run_once: true
     - name: Get rutorrent package
