@@ -171,3 +171,6 @@
     append: true
     groups: torrent
   notify: Restart nginx
+
+- name: Configure nginx for media serving
+  import_tasks: web_media.yml

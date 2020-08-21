@@ -20,6 +20,14 @@
     path: /etc/nginx/dhparams.pem
     size: 4096
 
+- name: Create modules.load.d directory
+  file:
+    path: /etc/nginx/modules.load.d
+    state: directory
+    owner: root
+    group: http
+    mode: 0755
+
 - name: Configure nginx conf
   copy:
     src: templates/nginx/conf.d
