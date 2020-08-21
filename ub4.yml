@@ -56,12 +56,6 @@
         grafana_https_key_path: "/etc/ssl_certificates/grafana.{{ top_domain_name }}/privatekey.pem"
       tags: [monitoring_server]
     - role: https
-      vars:
-        https_domains:
-          - "rutorrent.{{ top_domain_name }}"
-          - "rsshub.{{ top_domain_name }}"
-          - "grafana.{{ top_domain_name }}"
-          - "blog.{{ top_domain_name }}"
       tags: https
     - role: borg_backup
       tags: [borg_backup]
