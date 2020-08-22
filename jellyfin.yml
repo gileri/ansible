@@ -1,0 +1,5 @@
+---
+- hosts: jellyfin
+  become: true
+  roles:
+    - role: jellyfin

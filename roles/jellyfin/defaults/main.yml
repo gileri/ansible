@@ -1,0 +1,12 @@
+---
+jellyfin_cache_dir: /var/cache/jellyfin
+jellyfin_config_dir: /etc/jellyfin
+jellyfin_docker_image: jellyfin/jellyfin:latest
+jellyfin_docker_name: jellyfin
+jellyfin_docker_host_host: 127.0.0.1
+jellyfin_docker_host_port: 8001
+jellyfin_http_users: {}
+jellyfin_https_certificate_path: "/etc/ssl_certificates/{{ jellyfin_server_name }}/fullchain.pem"
+jellyfin_https_key_path: "/etc/ssl_certificates/{{ jellyfin_server_name }}/privatekey.pem"
+jellyfin_user: jellyfin
+jellyfin_group: jellyfin

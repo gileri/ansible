@@ -1,0 +1,79 @@
+---
+- name: Create jellyfin user
+  group:
+    name: "{{ jellyfin_group }}"
+  register: jellyfin_group_info
+
+- name: Create jellyfin user
+  user:
+    name: "{{ jellyfin_user }}"
+    group: "{{ jellyfin_group }}"
+    groups: "{{ jellyfin_user_groups }}"
+    append: true
+  register: jellyfin_user_info
+
+- name: Pull docker image
+  docker_image:
+    name: "{{ jellyfin_docker_image }}"
+    source: pull
+
+- name: Copy systemd service
+  template:
+    src: jellyfin.service
+    dest: /etc/systemd/system/jellyfin.service
+
+- name: Create var directories
+  file:
+    path: "{{ item }}"
+    owner: "{{ jellyfin_user }}"
+    group: "{{ jellyfin_group }}"
+    mode: 0750
+    state: directory
+  loop:
+    - "{{ jellyfin_config_dir }}"
+    - "{{ jellyfin_cache_dir }}"
+
+- name: Create container
+  docker_container:
+    image: "{{ jellyfin_docker_image }}"
+    user: "{{ jellyfin_user_info.uid }}"
+    groups: "{{ jellyfin_group_info.gid }}"
+    name: "{{ jellyfin_docker_name }}"
+    ports: "{{ jellyfin_docker_host_host }}:{{ jellyfin_docker_host_port }}:8096"
+    mounts:
+      - source: "{{ jellyfin_docker_media_host_path }}"
+        type: bind
+        read_only: true
+        target: /media
+      - source: "{{ jellyfin_config_dir }}"
+        type: bind
+        target: /config
+      - source: "{{ jellyfin_cache_dir }}"
+        type: bind
+        target: /cache
+    state: present
+
+- name: Enable and start systemd service
+  systemd:
+    name: jellyfin.service
+    state: started
+    enabled: true
+    daemon_reload: true
+
+#- name: Add nginx htpasswd
+#  template:
+#    src: templates/rsshub.htpasswd
+#    dest: /etc/nginx/snippets/
+#    owner: root
+#    group: http
+#    mode: 0640
+#  notify: Reload nginx
+
+- name: Add nginx site
+  template:
+    src: nginx_jellyfin.conf
+    dest: /etc/nginx/sites-enabled/jellyfin.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload nginx

@@ -1,0 +1,13 @@
+[Unit]
+Description={{ jellyfin_docker_name }} docker container
+BindsTo=docker.service
+After=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=10
+ExecStart=/usr/bin/docker start --attach {{ jellyfin_docker_name }}
+ExecStop=/usr/bin/docker stop {{ jellyfin_docker_name }}
+
+[Install]
+WantedBy=multi-user.target
