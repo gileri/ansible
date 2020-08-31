@@ -60,15 +60,6 @@
     enabled: true
     daemon_reload: true
 
-#- name: Add nginx htpasswd
-#  template:
-#    src: templates/rsshub.htpasswd
-#    dest: /etc/nginx/snippets/
-#    owner: root
-#    group: http
-#    mode: 0640
-#  notify: Reload nginx
-
 - name: Add nginx site
   template:
     src: nginx_jellyfin.conf
