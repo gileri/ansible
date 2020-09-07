@@ -3,69 +3,42 @@
   pacman:
     name: certbot
 
-- name: Create required directories
-  file:
-    path: "/etc/letsencrypt/{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,g=x,o=x
-  with_items:
-    - "{{ acme_challenge_directory }}"
-    - "{{ certbot_account_directory }}"
-
-- name: Generate Let's Encrypt account key
-  openssl_privatekey:
-    size: 4096
-    path: "{{ certbot_account_key }}"
-
-- name: Begin Let's Encrypt challenges
-  acme_certificate:
-    acme_directory: "{{ acme_directory }}"
-    acme_version: "{{ acme_version }}"
-    account_key_src: "{{ certbot_account_key }}"
-    account_email: "{{ acme_email }}"
-    terms_agreed: 1
-    challenge: "{{ acme_challenge_type }}"
-    csr: "{{ certificates_live_dir }}/{{ item }}/csr.pem"
-    dest: "{{ certificates_live_dir }}/{{ item }}/cert.pem"
-    fullchain_dest: "{{ certificates_live_dir }}/{{ item }}/fullchain.pem"
-    remaining_days: "{{ certificate_min_remaining_days }}"
-  register: acme_challenges
-  with_items: "{{ https_domains }}"
-
-- name: Create well-known folders
+- name: Create challenge directory
   file:
     state: directory
     owner: root
     group: http
     mode: u=rwx,g=rx,o=
-    path: "{{ item }}"
-  with_items:
-    - "{{ acme_challenge_directory }}"
-    - "{{ acme_challenge_directory }}/.well-known/"
-    - "{{ acme_challenge_directory }}/.well-known/acme-challenge"
+    path: "{{ acme_challenge_directory }}"
 
-- name: Implement http-01 challenge files
-  copy:
-    content: "{{ item['challenge_data'][item['item']]['http-01']['resource_value'] }}"
-    dest: "{{ acme_challenge_directory }}/{{ item['challenge_data'][item['item']]['http-01']['resource'] }}"
-    owner: root
-    group: http
-    mode: u=rw,g=r,o=
-  with_items: "{{ acme_challenges['results'] }}"
-  when: item['changed'] is true and item['item'] in item['challenge_data']
+- name: Generate certificates
+  command:
+    cmd: >-
+      certbot certonly --webroot --noninteractive --agree-tos
+      --email "{{ acme_email }}" -d "{{ item }}"
+      --webroot-path "{{ acme_challenge_directory }}"
+    creates: "/etc/letsencrypt/live/{{ item }}/fullchain.pem"
+  loop: "{{ https_domains }}"
 
-- name: Complete Let's Encrypt challenges
-  acme_certificate:
-    account_email: "{{ acme_email }}"
-    account_key_src: "{{ certbot_account_key }}"
-    acme_directory: "{{ acme_directory }}"
-    acme_version: "{{ acme_version }}"
-    challenge: "{{ acme_challenge_type }}"
-    fullchain_dest: "{{ certificates_live_dir }}/{{ item['item'] }}/fullchain.pem"
-    csr: "{{ certificates_live_dir }}/{{ item['item'] }}/csr.pem"
-    data: "{{ item }}"
-    dest: "{{ certificates_live_dir }}/{{ item['item'] }}/cert.pem"
-  with_items: "{{ acme_challenges['results'] }}"
-  notify: Reload nginx
+- name: Deploy live certificates
+  file:
+    state: link
+    src: "/etc/letsencrypt/live/{{ item.item }}"
+    path: "{{ certificates_live_dir }}/{{ item.item }}"
+  loop: "{{ https_stat_placeholders.results }}"
+  when: item.stat.lnk_source != "/etc/letsencrypt/live/" + item.item
+
+- name: Create certbot renewal systemd unit
+  template:
+    src: "{{ item }}"
+    dest: /etc/systemd/system
+  loop:
+    - certbot-renew.service
+    - certbot-renew.timer
+
+- name: Enable certbot renewal systemd timer
+  systemd:
+    name: certbot-renew.timer
+    daemon_reload: true
+    enabled: true
+    state: started

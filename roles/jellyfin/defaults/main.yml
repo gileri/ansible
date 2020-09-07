@@ -7,6 +7,6 @@ jellyfin_docker_host_host: 127.0.0.1
 jellyfin_docker_host_port: 8001
 jellyfin_http_users: {}
 jellyfin_https_certificate_path: "/etc/ssl_certificates/{{ jellyfin_server_name }}/fullchain.pem"
-jellyfin_https_key_path: "/etc/ssl_certificates/{{ jellyfin_server_name }}/privatekey.pem"
+jellyfin_https_key_path: "/etc/ssl_certificates/{{ jellyfin_server_name }}/privkey.pem"
 jellyfin_user: jellyfin
 jellyfin_group: jellyfin

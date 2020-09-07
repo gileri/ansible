@@ -19,9 +19,9 @@
         torrent_home: /mnt/data/home/torrent
         domain_name: "rutorrent.{{ top_domain_name }}"
         https_certificate_path: "/etc/ssl_certificates/rutorrent.{{ top_domain_name }}/fullchain.pem"
-        https_key_path: "/etc/ssl_certificates/rutorrent.{{ top_domain_name }}/privatekey.pem"
+        https_key_path: "/etc/ssl_certificates/rutorrent.{{ top_domain_name }}/privkey.pem"
         media_https_certificate_path: "/etc/ssl_certificates/media.{{ top_domain_name }}/fullchain.pem"
-        media_https_key_path: "/etc/ssl_certificates/media.{{ top_domain_name }}/privatekey.pem"
+        media_https_key_path: "/etc/ssl_certificates/media.{{ top_domain_name }}/privkey.pem"
         media_domain_name: "media.{{ top_domain_name }}"
       tags: [torrent]
     - role: ipfs
@@ -33,7 +33,7 @@
       vars:
         domain_name: "rsshub.{{ top_domain_name }}"
         https_certificate_path: "/etc/ssl_certificates/rsshub.{{ top_domain_name }}/fullchain.pem"
-        https_key_path: "/etc/ssl_certificates/rsshub.{{ top_domain_name }}/privatekey.pem"
+        https_key_path: "/etc/ssl_certificates/rsshub.{{ top_domain_name }}/privkey.pem"
       tags: rsshub
     - role: nas
       tags: [nas]
@@ -56,7 +56,7 @@
             - targets: "{{ groups['monitored_nodes'] | map('extract', hostvars, 'collectd_exporter_url') | list }}"
         grafana_domain_name: "grafana.{{ top_domain_name }}"
         grafana_https_certificate_path: "/etc/ssl_certificates/grafana.{{ top_domain_name }}/fullchain.pem"
-        grafana_https_key_path: "/etc/ssl_certificates/grafana.{{ top_domain_name }}/privatekey.pem"
+        grafana_https_key_path: "/etc/ssl_certificates/grafana.{{ top_domain_name }}/privkey.pem"
       tags: [monitoring_server]
     - role: https
       tags: https

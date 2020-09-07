@@ -1,10 +1,6 @@
 ---
-acme_challenge_type: http-01
-# acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory
-acme_directory: https://acme-v02.api.letsencrypt.org/directory
-acme_version: 2
 acme_challenge_directory: /srv/http/acme
+certbot_renewal_calendar: "Wed, 18:48"
 certificates_live_dir: /etc/ssl_certificates
-certbot_account_directory: /etc/letsencrypt/account
-certbot_account_key: "{{ certbot_account_directory }}/account.pem"
-certificate_min_remaining_days: 10 # Certificate will be renewed if expiration date is less than this variable days away
+certificates_bootstrap_dir: /etc/ssl_certificates_bootstrap
+certificate_min_remaining_days: 10 # Certificate will be renewed if expiration date is less than this variable days away TODO

@@ -1,0 +1,9 @@
+[Unit]
+Description=Timer for certbot certificate renewal
+
+[Timer]
+OnCalendar={{ certbot_renewal_calendar }}
+Persistent=false
+
+[Install]
+WantedBy=timers.target

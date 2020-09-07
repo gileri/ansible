@@ -1,48 +1,68 @@
 ---
-- name: Create live root directory
+- name: Gather variables for each operating system
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+
+- name: Install dependencies
+  package:
+    name: "{{ python_crypto_package }}"
+
+- name: Create bootstrap root directory
   file:
-    path: "{{ certificates_live_dir }}"
+    path: "{{ certificates_bootstrap_dir }}"
     state: directory
     owner: root
     group: root
     mode: 0750
 
-- name: Create domain live directories root directory
+- name: Create bootstrap domain directory
   file:
-    path: "{{ certificates_live_dir }}/{{ item }}"
+    path: "{{ certificates_bootstrap_dir }}/{{ item }}"
     state: directory
     owner: root
     group: root
     mode: 0750
   loop: "{{ https_domains }}"
 
-- name: Generate private keys
+- name: Generate bootstrap private keys
   openssl_privatekey:
     size: 4096
-    path: "{{ certificates_live_dir }}/{{ item }}/privatekey.pem"
+    path: "{{ certificates_bootstrap_dir }}/{{ item }}/privkey.pem"
   loop: "{{ https_domains }}"
+  notify: Reload nginx
 
-- name: Generate CSRs
+- name: Generate bootstrap CSRs
   openssl_csr:
-    privatekey_path: "{{ certificates_live_dir }}/{{ item }}/privatekey.pem"
-    path: "{{ certificates_live_dir }}/{{ item }}/csr.pem"
+    privatekey_path: "{{ certificates_bootstrap_dir }}/{{ item }}/privkey.pem"
+    path: "{{ certificates_bootstrap_dir }}/{{ item }}/csr.pem"
     digest: sha256
     common_name: "{{ item }}"
   loop: "{{ https_domains }}"
 
-- name: Check if there is already a certificate
-  stat:
-    path: "{{ certificates_live_dir }}/{{ item }}/fullchain.pem"
-  register: certificate_stat
-  loop: "{{ https_domains }}"
-
-- name: Generate temporary self-signed certificates
+- name: Generate bootstrap certificates
   openssl_certificate:
-    privatekey_path: "{{ certificates_live_dir }}/{{ item.item }}/privatekey.pem"
-    csr_path: "{{ certificates_live_dir }}/{{ item.item }}/csr.pem"
-    path: "{{ certificates_live_dir }}/{{ item.item }}/fullchain.pem"
+    privatekey_path: "{{ certificates_bootstrap_dir }}/{{ item }}/privkey.pem"
+    csr_path: "{{ certificates_bootstrap_dir }}/{{ item }}/csr.pem"
+    path: "{{ certificates_bootstrap_dir }}/{{ item }}/fullchain.pem"
     provider: selfsigned
-    force: false  # Ensure that valid or previous certificates would not be overwritten
-  when: item.stat.exists is false
-  loop: "{{ certificate_stat.results }}"
+    force: false
+  loop: "{{ https_domains }}"
+  notify: Reload nginx
+
+- name: List bootstrap certificates
+  stat:
+    path: "{{ certificates_live_dir }}/{{ item }}"
+  loop: "{{ https_domains }}"
+  register: https_stat_placeholders
+
+- name: Deploy bootstrap certificates
+  file:
+    state: link
+    src: "{{ certificates_bootstrap_dir }}/{{ item.item }}"
+    path: "{{ certificates_live_dir }}/{{ item.item }}"
+  loop: "{{ https_stat_placeholders.results }}"
+  when: not item.stat.exists
   notify: Reload nginx
