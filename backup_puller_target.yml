@@ -7,17 +7,6 @@
         state: reloaded
 
   tasks:
-    - name: Add backup_puller user
-      user:
-        name: backup_puller
-        groups:
-          - torrent
-
-    - name: Add backup_puller authorized_keys
-      authorized_key:
-        user: backup_puller
-        key: "{{ backup_puller_ssh_key }}"
-
     - name: Create sshd_config.d
       file:
         path: /etc/ssh/sshd_config.d

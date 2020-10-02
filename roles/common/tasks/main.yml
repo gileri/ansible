@@ -14,6 +14,25 @@
     state: started
     enabled: true
 
+- name: Add groups
+  group:
+    name: "{{ item }}"
+  loop: "{{ host_groups }}"
+
+- name: Add users
+  user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups | default([]) }}"
+    home: "{{ item.home | default('/home/' + item.name) }}"
+  loop: "{{ host_users }}"
+
+- name: Add SSH authorized keys
+  authorized_key:
+    user: "{{ item.0.name }}"
+    key: "{{ item.1.key }}"
+    key_options: "{{ item.1.key_options | default('') }}"
+  loop: "{{ host_users | subelements('authorized_keys', skip_missing=True) }}"
+
 - name: Upgrade packages
   pacman:
     update_cache: true

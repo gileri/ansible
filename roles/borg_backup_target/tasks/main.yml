@@ -2,16 +2,3 @@
 - name: Install borg
   pacman:
     name: borg
-
-- name: Add backup users
-  user:
-    name: "{{ item.name }}"
-    home: "{{ item.directory }}"
-  loop: "{{ backup_users }}"
-
-- name: Add authorized_keys
-  authorized_key:
-    user: "{{ item.0['name'] }}"
-    key: "{{ item.1 }}"
-    key_options: 'command="borg serve --append-only --restrict-to-path {{ item.0.directory }}",restrict'
-  loop: "{{ backup_users | subelements('authorized_keys') }}"
