@@ -1,0 +1,52 @@
+---
+- name: Allow Bittorrent traffic in firewall
+  ufw:
+    rule: allow
+    proto: tcp
+    to_port: "{{ qbittorrent_bittorrent_port }}"
+  when: firewall is defined and firewall == "ufw"
+
+- name: Allow DHT traffic in firewall
+  ufw:
+    rule: allow
+    proto: udp
+    to_port: "{{ qbittorrent_dht_port }}"
+  when: firewall is defined and firewall == "ufw"
+
+- name: Install qBittorrent
+  package:
+    name:
+      - qbittorrent-nox
+
+- name: Create group
+  group:
+    name: "{{ torrent_group }}"
+
+- name: Create user
+  user:
+    name: "{{ torrent_user }}"
+    groups: "{{ torrent_group }}"
+    shell: "{{ torrent_shell }}"
+    home: "{{ torrent_home }}"
+
+- name: Start and enable systemd service
+  systemd:
+    name: "qbittorrent-nox@{{ torrent_user }}.service"
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Add torrent web interface nginx configuration
+  template:
+    src: templates/nginx_torrent.conf
+    dest: /etc/nginx/sites-enabled/torrent.conf
+  notify: Reload nginx
+
+- name: Add nginx basic authorization credentials
+  template:
+    src: templates/torrent.htpasswd
+    dest: /etc/nginx/snippets/
+  notify: Reload nginx
+
+- name: Configure nginx for media serving
+  import_tasks: web_media.yml

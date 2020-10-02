@@ -1,0 +1,5 @@
+---
+- hosts: torrent
+  become: true
+  roles:
+    - role: torrent-qbittorrent
