@@ -18,6 +18,8 @@
 - name: Create container
   docker_container:
     image: "{{ docker_image_tag }}"
+    env:
+      UA: "{{ rsshub_user_agent }}"
     user: "9999"
     name: "{{ docker_container_name }}"
     ports: "{{ docker_container_host_host }}:{{ docker_container_host_port }}:1200"
@@ -46,4 +48,3 @@
     group: root
     mode: 0644
   notify: Reload nginx
-

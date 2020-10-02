@@ -1,5 +1,7 @@
+---
 docker_image_tag: diygod/rsshub:latest
 docker_container_name: rsshub
 docker_container_host_host: 127.0.0.1
 docker_container_host_port: 1200
 rsshub_users: {}
+rsshub_user_agent: "RSSHub (https://docs.rsshub.app/)"
