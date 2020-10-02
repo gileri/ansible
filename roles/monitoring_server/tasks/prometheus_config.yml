@@ -1,10 +1,11 @@
+---
 - name: create prometheus configuration directories
   file:
     path: "{{ item }}"
     state: directory
     owner: root
     group: prometheus
-    mode: 0770
+    mode: 0750
   with_items:
     - "{{ prometheus_config_dir }}"
     - "{{ prometheus_config_dir }}/rules"
