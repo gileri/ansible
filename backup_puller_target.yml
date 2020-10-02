@@ -23,6 +23,6 @@
       copy:
         dest: /etc/ssh/sshd_config.d/backup_puller.conf
         content: |
-          Match User backup_puller
+          Match User {{ backup_puller_user }}
             ForceCommand internal-sftp -R
       notify: Reload sshd
