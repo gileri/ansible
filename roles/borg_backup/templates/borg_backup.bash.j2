@@ -9,4 +9,4 @@ backup_sources=(
 {% endfor %}
 )
 
-/usr/bin/borg create --umask 0037 --compression {{ borg_backup_compression }} {{ borg_backup_repository }}::'{{ borg_backup_archive_name }}' "${backup_sources[@]}"
+/usr/bin/borg create --umask 0027 --compression {{ borg_backup_compression }} {{ borg_backup_repository }}::'{{ borg_backup_archive_name }}' "${backup_sources[@]}"
