@@ -27,6 +27,7 @@
     path: "{{ certificates_live_dir }}/{{ item.item }}"
   loop: "{{ https_stat_placeholders.results }}"
   when: item.stat.lnk_source != "/etc/letsencrypt/live/" + item.item
+  notify: Reload nginx
 
 - name: Create certbot renewal systemd unit
   template:
