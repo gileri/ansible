@@ -68,6 +68,7 @@
       - unrar
       - iotop
       - sysstat
+      - conntrack-tools
 
 - name: Create aur_builder user
   user:
