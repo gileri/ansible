@@ -1,9 +1,4 @@
 ---
-- name: Detect which firewall is enabled
-  include_role:
-    name: common
-    tasks_from: firewall_detection
-
 - name: Load handlers
   include_role:
     name: common
