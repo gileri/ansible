@@ -88,8 +88,8 @@
         "*"
       ]
     },
-    "NoFetch": true,
-    "NoDNSLink": true,
+    "NoFetch": {{ ipfs_no_fetch | lower }},
+    "NoDNSLink": {{ ipfs_no_dnslink | lower }},
     "PathPrefixes": [],
     "PublicGateways": {
     {% for g in ipfs_gateway_sites.keys(): %}
