@@ -1,11 +1,4 @@
 ---
-- name: Load handlers
-  include_role:
-    name: common
-    handlers_from: "{{ item }}"
-  loop:
-    - systemd
-
 - name: Install packages
   pacman:
     name:
