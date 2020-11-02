@@ -5,12 +5,24 @@
       - tor
       - nyx
 
-- name: Overwrite torrc configuration
+- name: Create torrc override folder
+  file:
+    path: /etc/tor/torrc.d
+    state: directory
+    owner: root
+    group: tor
+    mode: 0750
+
+- name: Add torrc configuration
   template:
-    src: templates/torrc
-    dest: /etc/tor/torrc
+    src: torrc.ansible.j2
+    dest: /etc/tor/torrc.d/ansible
   notify: Reload Tor service
 
+- name: Include torrc override folder in main configuration
+  lineinfile:
+    line: "%include /etc/tor/torrc.d/"
+    path: /etc/tor/torrc
 
 - name: Allow public tor ports
   ufw:
