@@ -18,9 +18,8 @@
     owner: "{{ ipfs_user_name }}"
 
 - name: Install IPFS
-  pacman:
-    name: go-ipfs
-  when: ansible_facts["os_family"] == "Archlinux"
+  package:
+    name: "{{ ipfs_package_name }}"
   notify: Restart ipfs systemd service
 
 - name: Create ipfs working directory
