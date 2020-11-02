@@ -12,6 +12,13 @@
     append: true
   register: jellyfin_user_info
 
+- name: Get additional groups ids
+  command:
+    cmd: "id -g {{ item }}"
+  loop: "{{ jellyfin_user_groups }}"
+  register: jellyfin_groups_info
+  changed_when: false
+
 - name: Pull docker image
   docker_image:
     name: "{{ jellyfin_docker_image }}"
@@ -37,7 +44,7 @@
   docker_container:
     image: "{{ jellyfin_docker_image }}"
     user: "{{ jellyfin_user_info.uid }}"
-    groups: "{{ jellyfin_group_info.gid }}"
+    groups: "{{ jellyfin_groups_info.results | map(attribute='stdout') | list | union([jellyfin_group_info.gid | string]) }}"
     name: "{{ jellyfin_docker_name }}"
     ports: "{{ jellyfin_docker_host_host }}:{{ jellyfin_docker_host_port }}:8096"
     mounts:
