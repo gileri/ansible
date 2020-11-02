@@ -1,3 +1,4 @@
 ---
 user_name: ipfs
 ipfs_package_name: go-ipfs
+ipfs_cluster_package_name: ipfs-cluster-bin

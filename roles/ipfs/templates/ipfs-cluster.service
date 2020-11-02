@@ -1,0 +1,13 @@
+[Unit]
+Description=IPFS Cluster Service
+After=network.target
+
+[Service]
+LimitNOFILE={{ ipfs_cluster_fd_max }}
+Environment="IPFS_CLUSTER_FD_MAX={{ ipfs_cluster_fd_max}}"
+ExecStart=/usr/bin/ipfs-cluster-service daemon
+Restart=on-failure
+User={{ ipfs_user_name }}
+
+[Install]
+WantedBy=multi-user.target

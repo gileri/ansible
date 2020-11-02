@@ -1,0 +1,3 @@
+{% for addr in ipfs_cluster_peer_addresses %}
+{{ addr }}
+{% endfor %}

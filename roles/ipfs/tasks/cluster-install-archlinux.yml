@@ -1,0 +1,57 @@
+---
+- name: Check whether cluster package is installed
+  command:
+    cmd: "pacman -Q {{ ipfs_cluster_package_name }}"
+  changed_when: false
+  register: ipfs_cluster_pacman_status
+  failed_when: ipfs_cluster_pacman_status.rc not in (0, 1)
+
+- name: install ipfs-cluster init service
+  become: true
+  template:
+    src: ipfs-cluster.service
+    dest: /etc/systemd/system/ipfs-cluster.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart IPFS Cluster
+
+- name: Build and install ipfs_cluster
+  become: true
+  become_user: nobody
+  become_method: sudo
+  when: ipfs_cluster_pacman_status.rc != 0
+  block:
+    - name: Create temporary build directory
+      tempfile:
+        state: directory
+        suffix: ipfs_cluster
+      register: ipfs_cluster_build_dir
+    - name: Get package sources
+      git:
+        repo: "https://aur.archlinux.org/{{ ipfs_cluster_package_name }}.git"
+        dest: "{{ ipfs_cluster_build_dir.path }}"
+        version: "{{ ipfs_cluster_package_hash }}"
+    - name: Build ipfs_cluster package
+      command:
+        chdir: "{{ ipfs_cluster_build_dir.path }}"
+        cmd: makepkg --force --noconfirm --noprogressbar
+
+    # This creates a possible race condition
+    - name: Find build package file
+      find:
+        paths: "{{ ipfs_cluster_build_dir.path }}"
+        patterns: "{{ ipfs_cluster_package_name }}-*.pkg.*"
+      register: ipfs_cluster_package_path
+      failed_when: ipfs_cluster_package_path.matched != 1
+    - name: Install ipfs_cluster
+      become: true
+      become_user: root
+      pacman:
+        name: "{{ ipfs_cluster_package_path.files[0].path }}"
+  always:
+    - name: Clean build folder
+      file:
+        path: "{{ ipfs_cluster_build_dir.path }}"
+        state: absent
