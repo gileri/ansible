@@ -120,3 +120,11 @@
   systemd:
     name: ufw
     enabled: true
+
+- name: Add additional ufw rules
+  ufw:
+    from_ip: "{{ item.from_ip }}"
+    proto: "{{ item.proto }}"
+    rule: "{{ item.rule }}"
+    to_port: "{{ item.to_port }}"
+  loop: "{{ ufw_additional_rules | default([]) }}"
