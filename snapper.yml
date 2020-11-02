@@ -1,0 +1,5 @@
+---
+- hosts: snapper
+  become: true
+  roles:
+    - role: snapper

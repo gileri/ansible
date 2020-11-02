@@ -1,0 +1,5 @@
+---
+snapper_package_name: snapper
+snapper_config_dir: /etc/snapper
+snapper_configs_dir: "{{ snapper_config_dir }}/configs/"
+snapper_conf_file: /etc/conf.d/snapper

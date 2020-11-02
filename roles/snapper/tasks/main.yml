@@ -1,0 +1,45 @@
+---
+- name: Install snapper
+  package:
+    name: "{{ snapper_package_name }}"
+
+- name: Create snapshot subvolumes
+  command:
+    cmd: btrfs subvolume create "{{ item.subvolume }}/{{ snapshots_directory }}"
+    creates: "{{ item.subvolume }}/{{ snapshots_directory }}"
+  loop: "{{ snapper_configs }}"
+  register: command_result
+  changed_when: command_result.rc == 0
+  failed_when: command_result.rc != 0 and "target path already exists" not in command_result.stdout
+
+- name: Ensure snapshot subvolumes permissions are strict enough
+  file:
+    path: "{{ item.subvolume }}/{{ snapshots_directory }}"
+    state: directory
+    mode: 0750
+    owner: root
+    group: root
+  loop: "{{ snapper_configs }}"
+
+- name: Install snapper configs
+  template:
+    src: snapper_config.j2
+    dest: "{{ snapper_configs_dir }}/{{ item.name }}"
+    mode: 0640
+  loop: "{{ snapper_configs }}"
+
+- name: Install snapper global configuration
+  template:
+    src: snapper_conf.d.j2
+    dest: "{{ snapper_conf_file }}"
+    mode: 0640
+
+- name: Enable snapper timers
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+    daemon_reload: true
+  loop:
+    - snapper-timeline.timer
+    - snapper-cleanup.timer
