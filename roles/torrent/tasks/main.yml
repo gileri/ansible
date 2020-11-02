@@ -113,9 +113,6 @@
       command:
         chdir: "{{ rutorrent_build_folder }}"
         cmd: makepkg --force --noconfirm --noprogressbar
-      environment:
-        # Workaround until https://github.com/ansible-collections/community.general/pull/650
-        PKGEXT: .pkg.tar.xz
     - name: Find build package file
       find:
         paths: "{{ rutorrent_build_folder }}"
