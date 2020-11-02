@@ -1,6 +1,6 @@
 {
   "API": {
-    "HTTPHeaders": {}
+    "HTTPHeaders": {{ ipfs_api_http_headers | to_json}}
   },
   "Addresses": {
     "API": "{{ ipfs_api_address }}",

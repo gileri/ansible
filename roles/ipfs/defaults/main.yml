@@ -1,6 +1,7 @@
 ---
 ipfs_api_address: /ip4/127.0.0.1/tcp/5001
 ipfs_autonat_service_mode: enabled
+ipfs_api_http_headers: {}
 ipfs_filestore_enabled: "false"  # Must be string to stay a valid json value
 ipfs_gateway_address: /ip4/127.0.0.1/tcp/8080
 ipfs_gateway_host: 127.0.0.1
