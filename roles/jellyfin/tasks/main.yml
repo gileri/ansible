@@ -42,6 +42,8 @@
 
 - name: Create container
   docker_container:
+    container_default_behavior: no_defaults
+    detach: false
     image: "{{ jellyfin_docker_image }}"
     user: "{{ jellyfin_user_info.uid }}"
     groups: "{{ jellyfin_groups_info.results | map(attribute='stdout') | list | union([jellyfin_group_info.gid | string]) }}"
