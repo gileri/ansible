@@ -3,6 +3,7 @@
   assert:
     that: item.name is regex("^[a-zA-Z0-9_]*$")
   loop: "{{ s3_backups }}"
+
 - name: Gather variables for each operating system
   include_vars: "{{ item }}"
   with_first_found:
@@ -18,49 +19,86 @@
 - name: Install minio from distribution repositories
   package:
     name:
-      - "{{ minio_client_package }}"
-  when: minio_client_package is defined
+      - "{{ rclone_package }}"
+  when: rclone_package is defined
 
-- name: Install minio from dl.min.io
-  get_url:
-    url: https://dl.min.io/client/mc/release/linux-amd64/mc
-    dest: "{{ mcli_path }}"
-    mode: 0755
-    owner: root
-    group: root
-  when: minio_client_package is not defined
+- name: Create backup puller initiator user
+  user:
+    name: "{{ backup_puller_initiator_user }}"
+  register: backup_puller_initiator_user_info
 
-- name: Create minio client config folder
+- name: Create backup puller config directory
   file:
-    path: "~{{ backup_local_user }}/{{ minio_config_dir }}"
+    path: "{{ backup_puller_config_dir }}"
+    state: directory
+    owner: "{{ backup_puller_initiator_user }}"
+    group: "{{ backup_puller_initiator_user_info.group }}"
+    mode: 0750
+
+
+- name: Configure rclone
+  template:
+    src: rclone.conf.j2
+    dest: "{{ rclone_config_file }}"
+    owner: "{{ backup_puller_initiator_user }}"
+    group: "{{ backup_puller_initiator_user_info.group }}"
+
+- name: Ensure configuration is valid # TODO
+  command: "{{ rclone_path }} --config {{ rclone_config_file }} config dump"
+  changed_when: false
+  become: true
+  become_user: "{{ backup_puller_initiator_user }}"
+  register: rclone_config_dump
+
+- name: Create SSH configuration directory
+  file:
+    path: "~backup_puller/.ssh"
     state: directory
     mode: 0700
-    owner: "{{ backup_local_user }}"
-
-- name: Configure minio
-  copy:
-    content: "{{ minio_config | to_nice_json }}"
-    dest: "~{{ backup_local_user }}/{{ minio_config_dir }}/config.json"
-
-- name: Ensure configuration is valid
-  command: "{{ mcli_path }} config host list -q"
-  changed_when: false
+    owner: "{{ backup_puller_initiator_user }}"
+    group: "{{ backup_puller_initiator_user }}"
 
 - name: Generate SSH key pair
   openssh_keypair:
-    path: "~/.ssh/id_rsa"
+    path: "~backup_puller/.ssh/id_rsa"  # TODO discover root home
+    owner: "{{ backup_puller_initiator_user }}"
+    group: "{{ backup_puller_initiator_user }}"
+    mode: 0600
 
-- name: Copy mount units
+- name: Add targets to known_hosts
+  known_hosts:
+    key: "{{ item.key }}"
+    name: "{{ item.name }}"
+    hash_host: true
+  loop: "{{ backup_puller_initiator_known_hosts }}"
+  become: true
+  become_user: "{{ backup_puller_initiator_user }}"
+
+- name: Create systemd target
   template:
-    src: backup.mount.j2
-    # Name of systemd unit must match mountpoint with some replacements.
-    # See systemd.mount and systemd.unit man pages
-    dest: "/etc/systemd/system/run-backup_puller-{{ item.name }}.mount"
+    src: backups.target.j2
+    dest: /etc/systemd/system/backups.target
     owner: root
     group: root
     mode: 0644
-  loop: "{{ s3_backups }}"
-  notify: Reload systemd services
+  when: use_timers is false
+
+- name: Create shutdown service
+  template:
+    src: shutdown.service
+    dest: /etc/systemd/system/
+  when: use_timers is false
+
+  #- name: Copy mount units
+  #  template:
+  #    src: backup.mount.j2
+  #    # Name of systemd unit must match mountpoint with some replacements.
+  #    # See systemd.mount and systemd.unit man pages
+  #    dest: "/etc/systemd/system/run-backup_puller-{{ item.name }}.mount"
+  #    owner: root
+  #    group: root
+  #    mode: 0644
+  #  loop: "{{ s3_backups }}"
 
 - name: Add services
   template:
@@ -70,7 +108,7 @@
     group: root
     mode: 0644
   loop: "{{ s3_backups }}"
-  notify: Reload systemd services
+  notify: Reload systemd units
 
 - name: Add timers
   template:
@@ -80,7 +118,7 @@
     group: root
     mode: 0644
   loop: "{{ s3_backups }}"
-  notify: Reload systemd services
+  when: use_timers is true
 
 - name: Start and enable timers
   systemd:
@@ -89,3 +127,27 @@
     enabled: true
     daemon_reload: true
   loop: "{{ s3_backups }}"
+  when: use_timers is true
+
+- name: Start and enable services
+  systemd:
+    name: "{{ systemd_prefix }}{{ item.name }}.service"
+    state: started
+    enabled: true
+    daemon_reload: true
+  loop: "{{ s3_backups }}"
+  when: use_timers is false
+
+- name: Enable target
+  systemd:
+    name: backups.target
+    enabled: true
+    daemon_reload: true
+  when: use_timers is false
+
+- name: Enable shutdown service
+  systemd:
+    name: shutdown.service
+    enabled: true
+    daemon_reload: true
+  when: use_timers is false

@@ -1,12 +1,15 @@
 [Unit]
 Description=Backup {{ item.name }} from {{ item.src }} to {{ item.dest }}
-RequiresMountsFor=/run/backup_puller/{{ item.name }}
-BindsTo=run-backup_puller-{{ item.name }}.mount
-After=run-backup_puller-{{ item.name }}.mount
+#RequiresMountsFor=/run/backup_puller/{{ item.name }}
+Before=systemd-poweroff.service backups.target
+
+[Install]
+WantedBy=backups.target
 
 [Service]
 Type=oneshot
-ExecStart={{ mcli_path }} mirror --overwrite --storage-class {{ item.storage_class | default('STANDARD') }} /run/backup_puller/{{ item.name }} {{ item.dest }}
+ExecStart={{ rclone_path }} sync --config {{ rclone_config_file }} {% for e in item.exclude %} --exclude "{{ e }}" {% endfor %} --update --use-server-modtime --verbose --s3-storage-class {{ item.storage_class | default('STANDARD') }} {{ item.src }} {{ item.dest }}
+User={{ backup_puller_initiator_user }}
 
 NoNewPrivileges=yes
 ProtectSystem=strict

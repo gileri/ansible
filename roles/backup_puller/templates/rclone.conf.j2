@@ -1,0 +1,9 @@
+{% for config, values in rclone_config.items() %}
+[{{ config }}]
+{% for subkey, value in values.items() %}
+    {{ subkey }} = {{ value }}
+{% endfor %}
+{% if not loop.last %}
+
+{% endif %}
+{% endfor %}

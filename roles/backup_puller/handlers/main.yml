@@ -1,2 +1,4 @@
 ---
-# handlers file for s3_backup
+- name: Reload systemd units
+  systemd:
+    daemon_reload: true

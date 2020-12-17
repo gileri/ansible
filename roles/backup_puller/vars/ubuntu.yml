@@ -1,4 +1,5 @@
 ---
-minio_config_dir: .mc
-mcli_binary: mc
-mcli_path: /usr/local/bin/mc
+backup_puller_config_dir: /etc/backup_puller
+rclone_package: rclone
+rclone_config_file: "{{ backup_puller_config_dir }}/rclone.conf"
+rclone_path: /usr/bin/rclone

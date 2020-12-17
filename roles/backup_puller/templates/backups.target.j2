@@ -1,0 +1,8 @@
+[Unit]
+Description=Backups
+After=network-online.target multi-user.target
+AllowIsolate=no
+DefaultDependencies=no
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Shut down with delay
+After=backups.target
+DefaultDependencies=no
+
+[Install]
+WantedBy=backups.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 300
+ExecStart=/usr/sbin/shutdown
