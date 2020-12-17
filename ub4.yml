@@ -1,13 +1,6 @@
 ---
 - hosts: ub4
   become: true
-  pre_tasks:
-    - name: Bind-mount rtorrent var directory
-      file:
-        state: link
-        src: /mnt/data/dl
-        path: "{{ rtorrent_var_dir }}"
-      tags: [real_machine]
   roles:
     - role: common
       tags: [common]
