@@ -59,3 +59,19 @@
         src: /mnt/data
         path: "{{ ipfs_home }}/data"
       tags: [real_machine]
+
+    - name: Create backup folder
+      file:
+        state: directory
+        path: /mnt/data/backup
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: Create ph2 backup folder
+      file:
+        state: directory
+        path: /mnt/data/backup/ph2
+        owner: ph2_backup
+        group: ph2_backup
+        mode: 0750
