@@ -1,5 +1,0 @@
----
-minio_client_package: minio-client
-minio_config_dir: .mcli
-mcli_binary: mcli
-mcli_path: /usr/bin/mcli

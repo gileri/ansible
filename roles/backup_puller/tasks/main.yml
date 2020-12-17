@@ -89,17 +89,6 @@
     dest: /etc/systemd/system/
   when: use_timers is false
 
-  #- name: Copy mount units
-  #  template:
-  #    src: backup.mount.j2
-  #    # Name of systemd unit must match mountpoint with some replacements.
-  #    # See systemd.mount and systemd.unit man pages
-  #    dest: "/etc/systemd/system/run-backup_puller-{{ item.name }}.mount"
-  #    owner: root
-  #    group: root
-  #    mode: 0644
-  #  loop: "{{ s3_backups }}"
-
 - name: Add services
   template:
     src: templates/backup.service.j2
