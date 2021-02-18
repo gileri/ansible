@@ -1,2 +1,2 @@
 ---
-# vars file for s3_backup
+kopia_path: /usr/bin/kopia

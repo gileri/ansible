@@ -1,5 +1,1 @@
 ---
-backup_puller_config_dir: /etc/backup_puller
-rclone_package: rclone
-rclone_config_file: "{{ backup_puller_config_dir }}/rclone.conf"
-rclone_path: /usr/bin/rclone

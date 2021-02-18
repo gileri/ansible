@@ -1,4 +1,16 @@
 ---
-use_timers: true
 systemd_prefix: s3-backup-
 backup_puller_initiator_user: backup_puller
+
+kopia_caching:
+  cachePrefix: "../../.cache/kopia/7ce90344a8b2c14c"
+  maxCacheSize: 5242880000
+  maxMetadataCacheSize: 5242880000
+  maxListCacheDuration: 600
+
+backup_puller_kopia_config:
+  storage: "{{ backup_puller_kopia_storage }}"
+  caching: "{{ kopia_caching }}"
+  hostname: backup_puller
+  username: backup_puller
+  description: backup_puller

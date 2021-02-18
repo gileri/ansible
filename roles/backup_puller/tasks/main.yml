@@ -11,44 +11,44 @@
     - "{{ ansible_distribution | lower }}.yml"
     - "{{ ansible_os_family | lower }}.yml"
 
-- name: Install packages
+- name: Install sshfs
   package:
     name:
       - sshfs
 
-- name: Install minio from distribution repositories
-  package:
-    name:
-      - "{{ rclone_package }}"
-  when: rclone_package is defined
+- name: Add kopia key
+  apt_key:
+    url: https://kopia.io/signing-key
+    id: A3B5843ED70529C23162E3687713E6D88ED70D9D
+
+- name: Add apt repo
+  apt_repository:
+    repo: deb http://packages.kopia.io/apt/ stable main
+
+- name: Install kopia
+  apt:
+    name: kopia
 
 - name: Create backup puller initiator user
   user:
     name: "{{ backup_puller_initiator_user }}"
   register: backup_puller_initiator_user_info
 
-- name: Create backup puller config directory
-  file:
-    path: "{{ backup_puller_config_dir }}"
-    state: directory
-    owner: "{{ backup_puller_initiator_user }}"
-    group: "{{ backup_puller_initiator_user_info.group }}"
-    mode: 0750
-
-
-- name: Configure rclone
-  template:
-    src: rclone.conf.j2
-    dest: "{{ rclone_config_file }}"
-    owner: "{{ backup_puller_initiator_user }}"
-    group: "{{ backup_puller_initiator_user_info.group }}"
-
-- name: Ensure configuration is valid # TODO
-  command: "{{ rclone_path }} --config {{ rclone_config_file }} config dump"
-  changed_when: false
+- name: Check repository status
+  command:
+    cmd: kopia repository status
   become: true
   become_user: "{{ backup_puller_initiator_user }}"
-  register: rclone_config_dump
+  changed_when: false
+  failed_when: backup_puller_kopa_repository_status.rc > 1
+  register: backup_puller_kopa_repository_status
+
+- name: Connect to kopia repository
+  command:
+    cmd: "kopia repository connect s3 --endpoint={{ backup_puller_kopia_storage.endpoint }} --bucket={{ backup_puller_kopia_storage.bucket }} --access-key={{ backup_puller_kopia_storage.accessKeyID }} --secret-access-key={{ backup_puller_kopia_storage.secretAccessKey }} -p {{ backup_puller_kopia_password}}"
+  become: true
+  become_user: "{{ backup_puller_initiator_user }}"
+  when: backup_puller_kopa_repository_status.rc != 0
 
 - name: Create SSH configuration directory
   file:
@@ -70,24 +70,18 @@
     key: "{{ item.key }}"
     name: "{{ item.name }}"
     hash_host: true
+    path: /etc/ssh/ssh_known_hosts
   loop: "{{ backup_puller_initiator_known_hosts }}"
-  become: true
-  become_user: "{{ backup_puller_initiator_user }}"
 
-- name: Create systemd target
+- name: Add mount units
   template:
-    src: backups.target.j2
-    dest: /etc/systemd/system/backups.target
+    src: templates/backup.mount.j2
+    dest: "/etc/systemd/system/run-backup_puller-{{ item.name }}.mount"
     owner: root
     group: root
     mode: 0644
-  when: use_timers is false
-
-- name: Create shutdown service
-  template:
-    src: shutdown.service
-    dest: /etc/systemd/system/
-  when: use_timers is false
+  loop: "{{ s3_backups }}"
+  notify: Reload systemd units
 
 - name: Add services
   template:
@@ -107,7 +101,6 @@
     group: root
     mode: 0644
   loop: "{{ s3_backups }}"
-  when: use_timers is true
 
 - name: Start and enable timers
   systemd:
@@ -116,27 +109,9 @@
     enabled: true
     daemon_reload: true
   loop: "{{ s3_backups }}"
-  when: use_timers is true
-
-- name: Start and enable services
-  systemd:
-    name: "{{ systemd_prefix }}{{ item.name }}.service"
-    state: started
-    enabled: true
-    daemon_reload: true
-  loop: "{{ s3_backups }}"
-  when: use_timers is false
 
 - name: Enable target
   systemd:
     name: backups.target
     enabled: true
     daemon_reload: true
-  when: use_timers is false
-
-- name: Enable shutdown service
-  systemd:
-    name: shutdown.service
-    enabled: true
-    daemon_reload: true
-  when: use_timers is false
