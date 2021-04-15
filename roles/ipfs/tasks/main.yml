@@ -73,7 +73,7 @@
 - name: init IPFS
   become: true
   become_user: "{{ ipfs_user_name }}"
-  command: "ipfs init --empty-repo -- {{ ipfs_path }}/default_config"
+  command: "ipfs init --empty-repo --profile {{ ipfs_profiles }} -- {{ ipfs_path }}/default_config"
   args:
     creates: "{{ ipfs_path }}/config"
   environment:

@@ -9,6 +9,7 @@ ipfs_no_dnslink: true
 ipfs_gateway_address: /ip4/127.0.0.1/tcp/8080
 ipfs_gateway_host: 127.0.0.1
 ipfs_gateway_port: 8080
+ipfs_profiles: server,badgerds
 ipfs_storage_max: "10GB"
 ipfs_user_name: ipfs
 ipfs_group_name: ipfs
