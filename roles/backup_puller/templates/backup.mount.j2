@@ -1,0 +1,7 @@
+[Unit]
+
+[Mount]
+What={{ item.src }}
+Where=/run/backup_puller/{{ item.name }}
+Options=allow_other,ro,uid={{ backup_puller_initiator_user_info.uid }},gid={{ backup_puller_initiator_user_info.group }}
+Type=fuse.sshfs
