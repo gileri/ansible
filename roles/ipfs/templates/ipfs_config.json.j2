@@ -7,10 +7,7 @@
     "Announce": [],
     "Gateway": "{{ ipfs_gateway_address }}",
     "NoAnnounce": [],
-    "Swarm": [
-      "/ip4/0.0.0.0/tcp/4001",
-      "/ip6/::/tcp/4001"
-    ]
+    "Swarm": {{ ipfs_addresses_swarm | to_json }}
   },
   "AutoNat": {
     "ServiceMode": "{{ ipfs_autonat_service_mode }}"

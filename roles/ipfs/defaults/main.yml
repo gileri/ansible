@@ -1,4 +1,9 @@
 ---
+ipfs_addresses_swarm:
+  - "/ip4/0.0.0.0/tcp/4001"
+  - "/ip6/::/tcp/4001"
+  - "/ip4/0.0.0.0/udp/4001/quic"
+  - "/ip6/::/udp/4001/quic"
 ipfs_api_address: /ip4/127.0.0.1/tcp/5001
 ipfs_autonat_service_mode: enabled
 ipfs_api_http_headers: {}
