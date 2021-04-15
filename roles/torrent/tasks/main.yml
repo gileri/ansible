@@ -98,7 +98,7 @@
 
 - name: Build and install rutorrent
   become: true
-  become_user: aur_builder
+  become_user: "{{ aur_builder_user }}"
   when: rutorrent_pacman_status.rc != 0 or force_rutorrent_installation
   block:
     - name: Set random build directory

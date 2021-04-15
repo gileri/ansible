@@ -1,4 +1,5 @@
 ---
+aur_builder_user: aur_builder
 rtorrent_bittorrent_port: "50000"
 rtorrent_dht_port: "6881"
 rtorrent_config_dir: /etc/rtorrent

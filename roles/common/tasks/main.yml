@@ -72,7 +72,7 @@
 
 - name: Create aur_builder user
   user:
-    name: aur_builder
+    name: "{{ aur_builder_user }}"
 
 - name: Check whether there is a mirrorlist.pacnew
   stat:
