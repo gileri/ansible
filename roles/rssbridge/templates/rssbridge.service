@@ -1,0 +1,13 @@
+[Unit]
+Description={{ docker_container_name }} docker container
+BindsTo=docker.service
+After=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=10
+ExecStart=/usr/bin/docker start --attach {{ docker_container_name }}
+ExecStop=/usr/bin/docker stop {{ docker_container_name }}
+
+[Install]
+WantedBy=multi-user.target

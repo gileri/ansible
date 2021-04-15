@@ -1,0 +1,62 @@
+---
+- name: Pull docker image
+  docker_image:
+    name: "{{ docker_image_tag }}"
+    source: pull
+
+- name: Copy systemd service
+  template:
+    src: templates/rssbridge.service
+    dest: /etc/systemd/system/rssbridge.service
+  register: systemd_service_file
+
+- name: Reload systemd services
+  systemd:
+    daemon_reload: true
+  when: systemd_service_file.changed
+
+- name: Create config dir
+  file:
+    path: /etc/rss-bridge
+    state: directory
+    owner: root
+    group: root
+    mode: 0750
+
+- name: Copy whitelist
+  copy:
+    content: '*'
+    dest: /etc/rss-bridge/whitelist.txt
+
+- name: Create container
+  docker_container:
+    image: "{{ docker_image_tag }}"
+    name: "{{ docker_container_name }}"
+    ports: "{{ docker_container_host_host }}:{{ docker_container_host_port }}:80"
+    volumes:
+      - /etc/rss-bridge/whitelist.txt:/app/whitelist.txt
+    state: present
+
+- name: Enable and start systemd service
+  systemd:
+    name: rssbridge.service
+    state: started
+    enabled: true
+
+- name: Add nginx htpasswd
+  template:
+    src: templates/rssbridge.htpasswd
+    dest: /etc/nginx/snippets/
+    owner: root
+    group: http
+    mode: 0640
+  notify: Reload nginx
+
+- name: Add nginx site
+  template:
+    src: templates/rssbridge.conf
+    dest: /etc/nginx/sites-enabled/
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload nginx

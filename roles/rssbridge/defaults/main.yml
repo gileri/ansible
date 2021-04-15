@@ -1,0 +1,8 @@
+---
+docker_image_tag: rssbridge/rss-bridge
+docker_container_name: rssbridge
+docker_container_host_host: 127.0.0.1
+docker_container_host_port: 1201
+rssbridge_users: {}
+rssbridge_https_certificate_path: "/etc/ssl_certificates/{{ rssbridge_server_name }}/fullchain.pem"
+rssbridge_https_key_path: "/etc/ssl_certificates/{{ rssbridge_server_name }}/privkey.pem"

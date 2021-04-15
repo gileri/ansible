@@ -1,0 +1,5 @@
+---
+- hosts: rssbridge
+  become: true
+  roles:
+    - role: rssbridge
