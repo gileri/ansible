@@ -6,23 +6,19 @@
   register: ipfs_cluster_pacman_status
   failed_when: ipfs_cluster_pacman_status.rc not in (0, 1)
 
-- name: install ipfs-cluster init service
-  become: true
-  template:
-    src: ipfs-cluster.service
-    dest: /etc/systemd/system/ipfs-cluster.service
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - restart IPFS Cluster
-
 - name: Build and install ipfs_cluster
   become: true
   become_user: nobody
   become_method: sudo
   when: ipfs_cluster_pacman_status.rc != 0
   block:
+    - name: Install build dependencies
+      pacman:
+        name:
+          - git
+          - base-devel
+      become: true
+      become_user: root
     - name: Create temporary build directory
       tempfile:
         state: directory
@@ -55,3 +51,22 @@
       file:
         path: "{{ ipfs_cluster_build_dir.path }}"
         state: absent
+
+- name: install ipfs-cluster init service
+  become: true
+  template:
+    src: ipfs-cluster.service
+    dest: /etc/systemd/system/ipfs-cluster.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart IPFS Cluster
+
+- name: Allow ipfs in ufw
+  ufw:
+    rule: allow
+    to_port: "{{ item }}"
+  loop:
+    - "16587"
+  when: firewall is defined and firewall == "ufw"

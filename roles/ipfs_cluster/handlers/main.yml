@@ -1,0 +1,5 @@
+---
+- name: restart IPFS Cluster
+  systemd:
+    state: restarted
+    name: ipfs-cluster.service

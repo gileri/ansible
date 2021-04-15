@@ -1,0 +1,5 @@
+---
+- hosts: ipfs_cluster
+  become: true
+  roles:
+    - role: ipfs_cluster

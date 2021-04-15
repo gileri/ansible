@@ -106,16 +106,3 @@
   notify: Reload nginx
   when: web_server is defined and web_server == 'nginx'
   loop: "{{ query('dict', ipfs_gateway_sites) }}"
-
-- name: Install and configure ipfs-cluster infrastructure
-  import_tasks: cluster-install-archlinux.yml
-
-- name: Configure cluster
-  import_tasks: cluster-configuration.yml
-
-- name: Start and enable ipfs-cluster
-  systemd:
-    name: ipfs-cluster.service
-    daemon_reload: true
-    enabled: true
-    state: started
