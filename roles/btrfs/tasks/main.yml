@@ -1,0 +1,7 @@
+---
+- name: Enable scrub systemd services
+  systemd:
+    name: "btrfs-scrub@{{ item }}.timer"
+    enabled: true
+    state: started
+  loop: "{{ btrfs_scrub_targets }}"

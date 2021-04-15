@@ -1,0 +1,5 @@
+---
+- hosts: btrfs
+  become: true
+  roles:
+    - role: btrfs
