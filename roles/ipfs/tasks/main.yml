@@ -34,10 +34,10 @@
     path: /etc/systemd/system/ipfs@.service.d/
     state: directory
 
-- name: Set IPFS_PATH in service
+- name: Add custom IPFS service override
   template:
-    src: templates/ipfs_path.conf
-    dest: /etc/systemd/system/ipfs@.service.d/ipfs_path.conf
+    src: templates/service_override.conf
+    dest: /etc/systemd/system/ipfs@.service.d/ansible.conf
   notify:
     - Reload systemd services
     - Restart ipfs systemd service
