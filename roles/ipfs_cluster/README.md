@@ -31,6 +31,7 @@ License
 -------
 
 BSD
+Configuration template from https://github.com/hsanjuan/ansible-ipfs-cluster/blob/master/roles/ipfs-cluster/templates/service.json (MIT)
 
 Author Information
 ------------------
