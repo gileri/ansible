@@ -1,0 +1,16 @@
+---
+- name: Install fail2ban
+  pacman:
+    name: fail2ban
+
+- name: Configure fail2ban
+  template:
+    src: fail2ban.conf.j2
+    dest: /etc/fail2ban/jail.d/ansible.conf
+  notify: Reload fail2ban
+
+- name: Start and enable fail2ban
+  systemd:
+    name: fail2ban.service
+    state: started
+    enabled: true
