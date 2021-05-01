@@ -14,37 +14,10 @@
   failed_when: dav_ext_pacman_status.rc not in (0, 1)
 
 - name: Build and install nginx-mod-dav-ext
+  aur:
+    name: nginx-mod-dav-ext
   become: true
-  become_user: aur_builder
-  when: dav_ext_pacman_status.rc != 0
-  block:
-    - name: Set random build directory
-      set_fact:
-        dav_ext_build_folder: "/tmp/dav-ext{{ 99999 | random }}"
-      run_once: true
-    - name: Get sources
-      git:
-        repo: https://aur.archlinux.org/nginx-mod-dav-ext.git
-        dest: "{{ dav_ext_build_folder }}"
-    - name: Build nginx-mod-dav-ext package
-      command:
-        chdir: "{{ dav_ext_build_folder }}"
-        cmd: makepkg --force --noconfirm --noprogressbar
-    - name: Find build package file
-      find:
-        paths: "{{ dav_ext_build_folder }}"
-        patterns: nginx-mod-dav-ext*.pkg.*
-      register: dav_ext_package_path
-      failed_when: dav_ext_package_path.matched != 1
-    - name: Install nginx-mod-dav-ext
-      become: true
-      become_user: root
-      pacman:
-        name: "{{ dav_ext_package_path.files[0].path }}"
-    - name: Clean build folder
-      file:
-        path: "{{ dav_ext_build_folder }}"
-        state: absent
+  become_user: "{{ aur_builder_user }}"
 
 - name: Load nginx-mod-dav-ext module
   template:

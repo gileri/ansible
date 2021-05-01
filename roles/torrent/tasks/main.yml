@@ -97,37 +97,10 @@
       - coreutils
 
 - name: Build and install rutorrent
+  aur:
+    name: nginx-mod-dav-ext
   become: true
   become_user: "{{ aur_builder_user }}"
-  when: rutorrent_pacman_status.rc != 0 or force_rutorrent_installation
-  block:
-    - name: Set random build directory
-      set_fact:
-        rutorrent_build_folder: "/tmp/rutorrent{{ 99999 | random }}"
-      run_once: true
-    - name: Get rutorrent package
-      git:
-        repo: https://aur.archlinux.org/rutorrent.git
-        dest: "{{ rutorrent_build_folder }}"
-    - name: Build rutorrent package
-      command:
-        chdir: "{{ rutorrent_build_folder }}"
-        cmd: makepkg --force --noconfirm --noprogressbar
-    - name: Find build package file
-      find:
-        paths: "{{ rutorrent_build_folder }}"
-        patterns: rutorrent*.pkg.*
-      register: rutorrent_package_path
-      failed_when: rutorrent_package_path.matched != 1
-    - name: Install rutorrent
-      become: true
-      become_user: root
-      pacman:
-        name: "{{ rutorrent_package_path.files[0].path }}"
-    - name: Clean build folder
-      file:
-        path: "{{ rutorrent_build_folder }}"
-        state: absent
 
 - name: Add rutorrent nginx configuration
   template:
