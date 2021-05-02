@@ -1,0 +1,13 @@
+[parity]
+base_path = "{{ staker_openethereum_base_path }}"
+chain = "{{ staker_openethereum_chain }}"
+
+[footprint]
+cache_size = 1024
+
+[network]
+port = {{ staker_openethereum_network_port | int }}
+
+[metrics]
+enable = {{ staker_openethereum_metrics_enable | bool | lower }}
+port = {{ staker_openethereum_metrics_port | int }}

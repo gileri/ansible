@@ -1,0 +1,8 @@
+---
+staker_build_dependencies:
+  - git
+  - cargo
+  - build-essential
+  - cmake
+  - libudev-dev
+  - unzip

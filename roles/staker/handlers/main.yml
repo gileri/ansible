@@ -1,0 +1,9 @@
+---
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: true
+
+- name: Restart openethereum daemon
+  systemd:
+    name: openethereum.service
+    state: restarted

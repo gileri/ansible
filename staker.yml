@@ -1,0 +1,5 @@
+---
+- hosts: stakers
+  become: true
+  roles:
+    - role: staker

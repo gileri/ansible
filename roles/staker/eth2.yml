@@ -1,0 +1,84 @@
+---
+- name: Check whether lighthouse is installed
+  stat:
+    path: /usr/local/bin/lighthouse
+  register: staker_lighthouse_binary_stat
+
+- name: Build and install lighthouse
+  when: not staker_lighthouse_binary_stat.stat.exists
+  block:
+    - name: Set random build directory
+      ansible.builtin.tempfile:
+        state: directory
+      register: staker_lighthouse_build_path
+    - name: Create build folder
+      file:
+        path: "{{ staker_lighthouse_build_path.path }}"
+        state: directory
+        mode: 0700
+    - name: Clone lighthouse
+      git:
+        repo: https://github.com/sigp/lighthouse.git
+        dest: "{{ staker_lighthouse_build_path.path }}"
+        version: "{{ staker_lighthouse_commit }}"
+    - name: Build lighthouse
+      command:
+        cmd: cargo build --release
+        chdir: "{{ staker_lighthouse_build_path.path }}"
+    - name: Install lighthouse
+      copy:
+        src: "{{ staker_lighthouse_build_path.path }}/target/release/lighthouse"
+        dest: /usr/local/bin/lighthouse
+        remote_src: true
+        mode: 0755
+        #  always:
+        #    - name: Clean build folder
+        #      file:
+        #        path: "{{ staker_lighthouse_build_path.path }}"
+        #        state: absent
+
+- name: Install beacon node service
+  template:
+    src: beacon-node.service.j2
+    dest: /etc/systemd/system/beacon-node.service
+    mode: 0744
+  notify: Reload systemd daemon
+
+- name: Install validator service
+  template:
+    src: validator.service.j2
+    dest: /etc/systemd/system/validator.service
+    mode: 0744
+    notify:
+      - Restart #TODO
+  when: staker_run_validator
+
+- name: Allow Rest HTTP API traffic in firewall
+  ufw:
+    rule: allow
+    proto: tcp
+    to_port: "{{ staker_lighthouse_beacon_http_port }}"
+  when: firewall is defined and firewall == "ufw"
+
+- name: Allow Eth2 network traffic in firewall
+  ufw:
+    rule: allow
+    proto: "{{ item }}"
+    to_port: "{{ staker_lighthouse_beacon_listen_port }}"
+  when: firewall is defined and firewall == "ufw"
+  loop:
+    - tcp
+    - udp
+
+- name: Start and enable the beacon node service
+  systemd:
+    name: beacon-node.service
+    state: started
+    enabled: true
+
+- name: Start and enable the validator node service
+  systemd:
+    name: validator.service
+    state: started
+    enabled: true
+  when: staker_run_validator

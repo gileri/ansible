@@ -1,0 +1,88 @@
+---
+- name: Check whether openethereum is installed
+  stat:
+    path: /usr/local/bin/openethereum
+  register: staker_openethereum_binary_stat
+
+- name: Check whether openethereum systemd service is deployed
+  stat:
+    path: /etc/systemd/system/openethereum.service
+  register: staker_openethereum_service_stat
+
+- name: Build and install openethereum
+  when: not (staker_openethereum_binary_stat.stat.exists and staker_openethereum_service_stat.stat.exists) and staker_openethereum_build_from_source
+  block:
+    - name: Set random build directory
+      set_fact:
+        staker_openethereum_build_path: "{{ staker_openethereum_build_path_prefix }}{{ 99999 | random }}"
+      run_once: true
+    - name: Create build folder
+      file:
+        path: "{{ staker_openethereum_build_path }}"
+        state: directory
+        mode: 0700
+    - name: Clone openethereum
+      git:
+        repo: https://github.com/openethereum/openethereum.git
+        dest: "{{ staker_openethereum_build_path }}"
+        version: 09967329af6fac1a9718f8b2b51d920a351a673e  # 3.2.4
+    - name: Build openethereum
+      command:
+        cmd: cargo build --release --features final
+        chdir: "{{ staker_openethereum_build_path }}"
+    - name: Install openethereum into $PATH
+      copy:
+        src: "{{ staker_openethereum_build_path }}/target/release/openethereum"
+        dest: /usr/local/bin/openethereum
+        mode: 0755
+        remote_src: true
+    - name: Install systemd service
+      copy:
+        src: "{{ staker_openethereum_build_path }}/scripts/openethereum.service"
+        dest: /etc/systemd/system/openethereum.service
+        mode: 0744
+        remote_src: true
+      notify: Reload systemd daemon
+  always:
+    - name: Clean build folder
+      file:
+        path: "{{ staker_openethereum_build_path }}"
+        state: absent
+
+- name: Install from package
+  package:
+    name: openethereum
+
+- name: Create openethereum configuration directory
+  file:
+    path: "{{ staker_openethereum_configuration_dir }}"
+    state: directory
+
+- name: Configure openethereum
+  template:
+    src: openethereum.toml
+    dest: "{{ staker_openethereum_configuration_path }}"
+  notify: Restart openethereum daemon
+
+- name: Allow metrics traffic in firewall
+  ufw:
+    rule: allow
+    proto: tcp
+    to_port: "{{ staker_openethereum_metrics_port }}"
+  when: firewall is defined and firewall == "ufw"
+
+- name: Allow Eth1 network traffic in firewall
+  ufw:
+    rule: allow
+    proto: "{{ item }}"
+    to_port: "{{ staker_openethereum_network_port }}"
+  when: firewall is defined and firewall == "ufw"
+  loop:
+    - tcp
+    - udp
+
+- name: Start and enable openethereum
+  systemd:
+    name: openethereum.service
+    state: started
+    enabled: true

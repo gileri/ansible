@@ -1,0 +1,10 @@
+---
+- name: Install build dependencies
+  package:
+    name: "{{ staker_dependencies }}"
+
+- name: Eth1 setup
+  include_tasks: eth1.yml
+
+- name: Eth2 setup
+  include_tasks: eth2.yml

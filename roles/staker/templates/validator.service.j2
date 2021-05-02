@@ -1,0 +1,10 @@
+[Unit]
+Description=Lighthouse validator
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/lighthouse vc --network {{ staker_lighthouse_network }} --metrics
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

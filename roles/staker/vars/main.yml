@@ -1,0 +1,8 @@
+---
+staker_dependencies:
+  - git
+  - cargo
+  - rust
+  - base-devel
+  - cmake
+  - unzip

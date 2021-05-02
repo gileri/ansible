@@ -1,0 +1,10 @@
+[Unit]
+Description=Lighthouse Beacon Node
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/lighthouse bn --staking --validator-monitor-auto --metrics --http-address {{ staker_lighthouse_beacon_http_address }} --http-port {{ staker_lighthouse_beacon_http_port }} --network "{{ staker_lighthouse_network }}"
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
