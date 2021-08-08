@@ -1,6 +1,6 @@
 ---
 ipfs_cluster_fd_max: 10000
-ipfs_cluster_version: 0.13.0
+ipfs_cluster_version: 0.14.0
 ipfs_group_name: ipfs
 ipfs_home: /home/ipfs
 ipfs_path: "{{ ipfs_home }}/ipfs"
