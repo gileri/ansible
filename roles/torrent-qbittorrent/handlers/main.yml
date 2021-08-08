@@ -1,5 +1,5 @@
 ---
-- name: Restart rtorrent
+- name: Restart qbittorrent
   systemd:
-    name: rtorrent.service
+    name: "qbittorrent-nox@{{ torrent_user }}"
     state: restarted

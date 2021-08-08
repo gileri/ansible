@@ -4,3 +4,9 @@
     name: tor.service
     state: reloaded
     daemon_reload: true
+
+- name: Restart Tor service
+  systemd:
+    name: tor.service
+    state: reloaded
+    daemon_reload: true

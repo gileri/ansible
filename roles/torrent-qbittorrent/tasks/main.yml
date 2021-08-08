@@ -29,6 +29,18 @@
     shell: "{{ torrent_shell }}"
     home: "{{ torrent_home }}"
 
+- name: Create systemd service override folder
+  file:
+    path: /etc/systemd/system/qbittorrent-nox@.service.d/
+    state: directory
+
+- name: Add service override
+  template:
+    src: templates/service_override.conf
+    dest: /etc/systemd/system/qbittorrent-nox@.service.d/ansible.conf
+  notify:
+    - Restart qbittorrent
+
 - name: Start and enable systemd service
   systemd:
     name: "qbittorrent-nox@{{ torrent_user }}.service"

@@ -34,6 +34,18 @@
     - "{{ tor_dir_port }}"
     - "{{ tor_or_port }}"
 
+- name: Create systemd service override folder
+  file:
+    path: /etc/systemd/system/tor.service.d/
+    state: directory
+
+- name: Add service override
+  template:
+    src: templates/service_override.conf
+    dest: /etc/systemd/system/tor.service.d/ansible.conf
+  notify:
+    - Restart Tor service
+
 - name: Start and enable Tor
   systemd:
     name: tor.service

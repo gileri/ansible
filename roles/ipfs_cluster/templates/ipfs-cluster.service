@@ -8,6 +8,9 @@ Environment="IPFS_CLUSTER_FD_MAX={{ ipfs_cluster_fd_max}}"
 ExecStart=/usr/bin/ipfs-cluster-service daemon
 Restart=on-failure
 User={{ ipfs_user_name }}
+Nice=19
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
 
 [Install]
 WantedBy=multi-user.target
