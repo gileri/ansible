@@ -32,6 +32,9 @@
         prometheus_targets:
           node:
             - targets: "{{ groups['monitored_nodes'] | map('extract', hostvars, 'collectd_exporter_url') | list }}"
+            - targets: [localhost:5054]
+            - targets: [localhost:3000]
+            - targets: [alarm.lan:5064]
         grafana_domain_name: "grafana.{{ top_domain_name }}"
         grafana_https_certificate_path: "/etc/ssl_certificates/grafana.{{ top_domain_name }}/fullchain.pem"
         grafana_https_key_path: "/etc/ssl_certificates/grafana.{{ top_domain_name }}/privkey.pem"
