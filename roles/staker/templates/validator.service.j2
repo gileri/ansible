@@ -3,6 +3,7 @@ Description=Lighthouse validator
 After=network.target
 
 [Service]
+User={{ staker_lighthouse_user }}
 ExecStart=/usr/local/bin/lighthouse vc --network {{ staker_lighthouse_network }} --metrics
 Restart=on-failure
 

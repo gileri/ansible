@@ -3,6 +3,7 @@ Description=Lighthouse Beacon Node
 After=network.target
 
 [Service]
+User={{ staker_lighthouse_user }}
 ExecStart=/usr/local/bin/lighthouse bn --staking --validator-monitor-auto --metrics --http-address {{ staker_lighthouse_beacon_http_address }} --http-port {{ staker_lighthouse_beacon_http_port }} --network "{{ staker_lighthouse_network }}"
 Restart=on-failure
 

@@ -4,6 +4,10 @@
     path: /usr/local/bin/lighthouse
   register: staker_lighthouse_binary_stat
 
+- name: Create the lighthouse user
+  user:
+    name: "{{ staker_lighthouse_user }}"
+
 - name: Build and install lighthouse
   when: not staker_lighthouse_binary_stat.stat.exists
   block:
@@ -42,16 +46,19 @@
     src: beacon-node.service.j2
     dest: /etc/systemd/system/beacon-node.service
     mode: 0744
-  notify: Reload systemd daemon
+  notify:
+    - Reload systemd daemon
+    - Restart beacon node service
 
 - name: Install validator service
   template:
     src: validator.service.j2
     dest: /etc/systemd/system/validator.service
     mode: 0744
-    notify:
-      - Restart #TODO
   when: staker_run_validator
+  notify:
+    - Reload systemd daemon
+    - Restart validator service
 
 - name: Allow Rest HTTP API traffic in firewall
   ufw:

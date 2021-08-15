@@ -19,5 +19,6 @@ staker_lighthouse_beacon_listen_port: "9000"
 staker_lighthouse_commit: 3b600acdc5bf9726367c18277a22486573b8b457  # v1.4.0
 staker_lighthouse_network: prater
 staker_lighthouse_source_installation: true
+staker_lighthouse_user: lighthouse
 
 staker_run_validator: false
