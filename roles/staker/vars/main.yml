@@ -2,6 +2,7 @@
 staker_dependencies:
   - git
   - cargo
+  - clang
   - rust
   - base-devel
   - cmake
