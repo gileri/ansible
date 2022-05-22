@@ -16,7 +16,7 @@ staker_openethereum_network_port: "30303"
 staker_lighthouse_beacon_http_address: 0.0.0.0
 staker_lighthouse_beacon_http_port: "5052"
 staker_lighthouse_beacon_listen_port: "9000"
-staker_lighthouse_commit: 5f628a71d4b2a7e7761b30e726338bba07617cd2  # v2.1.1
+staker_lighthouse_commit: aa72088f8fc91d41106a8afce7a0179cde64ce5d # v2.2.1
 staker_lighthouse_network: prater
 staker_lighthouse_source_installation: true
 staker_lighthouse_user: lighthouse
