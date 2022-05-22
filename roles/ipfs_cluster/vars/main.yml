@@ -1,5 +1,5 @@
 ---
 user_name: ipfs
 ipfs_package_name: go-ipfs
-ipfs_cluster_package_hash: 3d607281585f66cea23a857e3f608983eaf6110e
+ipfs_cluster_package_hash: 3910f50f85753aff8f9ffd7b1c510c76a979fb09
 ipfs_cluster_package_name: ipfs-cluster-bin
