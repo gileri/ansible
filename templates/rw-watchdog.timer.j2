@@ -1,0 +1,9 @@
+[Unit]
+Description=Reboot host when root filesystem becomes read-only
+
+[Timer]
+OnCalendar=minutely
+Persistent=false
+
+[Install]
+WantedBy=timers.target

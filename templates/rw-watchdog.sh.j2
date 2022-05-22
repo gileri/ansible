@@ -1,0 +1,2 @@
+#!/bin/sh
+findmnt / --output options | grep -q '\brw\b' || reboot

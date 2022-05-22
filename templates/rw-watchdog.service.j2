@@ -1,0 +1,6 @@
+[Unit]
+Description=Reboot host when root filesystem becomes read-only
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/rw-watchdog

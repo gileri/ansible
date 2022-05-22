@@ -63,6 +63,30 @@
         path: "{{ ipfs_home }}/data"
       tags: [real_machine]
 
+    # SSD hardware bug workaround
+    - name: read-write watchdog
+      tags: [rw-watchdog]
+      block:
+        - name: Add read-only watchdog script
+          copy:
+            src: templates/rw-watchdog.sh.j2
+            dest: /usr/local/bin/rw-watchdog
+            mode: 0755
+        - name: Add read-only watchdog service
+          copy:
+            src: templates/rw-watchdog.service.j2
+            dest: /etc/systemd/system/rw-watchdog.service
+        - name: Add read-only watchdog timer
+          copy:
+            src: templates/rw-watchdog.timer.j2
+            dest: /etc/systemd/system/rw-watchdog.timer
+        - name: Start and enable read-only watchdog timer
+          systemd:
+            name: rw-watchdog.timer
+            state: started
+            enabled: true
+            daemon_reload: true
+
     - name: Create backup folder
       file:
         state: directory
