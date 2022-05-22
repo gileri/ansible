@@ -1,15 +1,24 @@
 ---
-- name: Check whether lighthouse is installed
-  stat:
-    path: /usr/local/bin/lighthouse
-  register: staker_lighthouse_binary_stat
+- name: Check lighthouse version
+  command:
+    cmd: /usr/local/bin/lighthouse --version
+  register: staker_lighthouse_installed_version
+  changed_when: false
+  failed_when: false
 
 - name: Create the lighthouse user
   user:
     name: "{{ staker_lighthouse_user }}"
 
+- name: Check whether lighthouse need to be (re)installed
+  set_fact:
+    staker_lighthouse_needs_install: true
+  when: >
+    staker_lighthouse_installed_version.rc != 0
+      or staker_lighthouse_commit[0:7] not in staker_lighthouse_installed_version.stdout
+
 - name: Build and install lighthouse
-  when: not staker_lighthouse_binary_stat.stat.exists
+  when: staker_lighthouse_needs_install
   block:
     - name: Set random build directory
       ansible.builtin.tempfile:
@@ -40,6 +49,11 @@
         #      file:
         #        path: "{{ staker_lighthouse_build_path.path }}"
         #        state: absent
+  always:
+    - name: Clean build folder
+      file:
+        path: "{{ staker_lighthouse_build_path.path }}"
+        state: absent
 
 - name: Install beacon node service
   template:
@@ -77,11 +91,19 @@
     - tcp
     - udp
 
+- name: Restart and enable the beacon node service
+  systemd:
+    name: beacon-node.service
+    state: restarted
+    enabled: true
+  when: staker_lighthouse_needs_install
+
 - name: Start and enable the beacon node service
   systemd:
     name: beacon-node.service
     state: started
     enabled: true
+  when: not staker_lighthouse_needs_install
 
 - name: Start and enable the validator node service
   systemd:

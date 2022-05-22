@@ -7,3 +7,5 @@ staker_dependencies:
   - base-devel
   - cmake
   - unzip
+
+staker_lighthouse_needs_install: false
