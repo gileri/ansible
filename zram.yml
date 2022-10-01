@@ -1,0 +1,5 @@
+---
+- hosts: zram
+  become: true
+  roles:
+    - role: zram

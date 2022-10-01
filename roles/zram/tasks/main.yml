@@ -1,0 +1,13 @@
+---
+- name: Install and configure zram-generator
+  block:
+  - name: Install zram-generator
+    package:
+      name: "{{ zram_package_name }}"
+  - name: Add zram-generator config file
+    template:
+      src: zram-generator.conf
+      dest: /etc/systemd/zram-generator.conf
+  notify:
+    - Stop zram device
+    - Start zram device

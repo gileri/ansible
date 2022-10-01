@@ -1,0 +1,10 @@
+---
+- name: Stop zram device
+  systemd:
+    state: restarted
+    name: /dev/zram0
+    daemon_reload: true
+- name: Start zram device
+  systemd:
+    state: started
+    name: /dev/zram0
